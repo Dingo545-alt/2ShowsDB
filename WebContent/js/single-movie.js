@@ -50,26 +50,3 @@ jQuery.ajax({
     url: "api/single-movie?id=" + movie_id,
     success: (resultData) => handleSingleMovieResults(resultData)
 });
-
-jQuery(document).ready(function () {
-    jQuery("#add-to-cart-single-movie").on("click", function () {
-        const button = jQuery(this);
-        const originalLabel = button.text();
-        button.prop("disabled", true).text("Adding...");
-
-        jQuery.ajax({
-            url: "api/shopping-cart",
-            type: "POST",
-            data: { id: movie_id, action: "add" },
-            dataType: "json",
-            success: function () {
-                button.text("Added ✓");
-                setTimeout(() => button.text(originalLabel).prop("disabled", false), 900);
-            },
-            error: function () {
-                button.text("Error").prop("disabled", false);
-                setTimeout(() => button.text(originalLabel), 1200);
-            }
-        });
-    });
-});

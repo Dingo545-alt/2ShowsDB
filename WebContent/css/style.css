@@ -33,26 +33,6 @@
     background-color: #3a5168;
 }
 
-/* Add-to-cart button shared across pages */
-.add-to-cart-button {
-    background-color: #1a3a6e;
-    color: #fff;
-    border: 0;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-}
-
-.add-to-cart-button:hover:not(:disabled) {
-    background-color: #2a4d8a;
-}
-
-.add-to-cart-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
 /* ---- Navbar search bar ---- */
 .navbar-search {
     display: flex;

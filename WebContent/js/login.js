@@ -16,12 +16,8 @@ jQuery(document).ready(function() {
                   data: formData,
                   dataType: "json",
                   success: function(data) {
-                      if (data.type === "employee") {
-                          window.location.href = "_dashboard/index.html";
-                      } else {
-                          window.location.href = "main.html";
-                          console.log(data.type);
-                      }
+                      window.location.href = "main.html";
+                      console.log(data.type);
                   },
                   error: function(xhr) {
                       const data = JSON.parse(xhr.responseText);

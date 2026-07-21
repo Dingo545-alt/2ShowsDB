@@ -212,13 +212,6 @@ function populateMovieTableWithResults(movieArray, state) {
                 <td>${ratingDisplay}</td>
                 <td>${(movie.genres || []).map(g => `<a href="movie-list.html?genre=${encodeURIComponent(g)}">${g}</a>`).join(", ")}</td>
                 <td>${starsHTML}</td>
-                <td>
-                    <button type="button"
-                            class="add-to-cart-button"
-                            data-movie-id="${movie.movie_id}">
-                        Add to Cart
-                    </button>
-                </td>
             </tr>`;
 
         movieTableBodyElement.append(rowHTML);
@@ -303,32 +296,6 @@ function attachClickHandlersToPaginationButtons() {
     });
 }
 
-function attachClickHandlerForAddToCartButtons() {
-    jQuery("#movie-table-body").on("click", ".add-to-cart-button", function () {
-        const button = jQuery(this);
-        const movieId = button.data("movie-id");
-        const originalLabel = button.text();
-
-        button.prop("disabled", true).text("Adding...");
-
-        jQuery.ajax({
-            url: "api/shopping-cart",
-            type: "POST",
-            data: { id: movieId, action: "add" },
-            dataType: "json",
-            success: function () {
-                button.text("Added ✓");
-                setTimeout(() => {
-                    button.text(originalLabel).prop("disabled", false);
-                }, 900);
-            },
-            error: function () {
-                button.text("Error").prop("disabled", false);
-                setTimeout(() => button.text(originalLabel), 1200);
-            }
-        });
-    });
-}
 
 jQuery(function () {
     const initialState = readCurrentStateFromUrl();
@@ -339,7 +306,6 @@ jQuery(function () {
     attachClickHandlersToSortableHeaders();
     attachChangeHandlerToPageSizeDropdown();
     attachClickHandlersToPaginationButtons();
-    attachClickHandlerForAddToCartButtons();
 
     fetchMovieListAndRender(initialState);
 });

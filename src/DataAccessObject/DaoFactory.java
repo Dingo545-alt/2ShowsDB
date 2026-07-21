@@ -54,18 +54,4 @@ public class DaoFactory {
         }
         throw new IllegalArgumentException("Database type not supported");
     }
-
-    public static CartDao getCartDao() {
-        if (DATABASE_TYPE.equals("MONGODB")) {
-            return new MongoCartDao();
-        }
-        throw new IllegalArgumentException("Database type not supported");
-    }
-
-    public static PaymentDao getPaymentDao() {
-        if (DATABASE_TYPE.equals("MONGODB")) {
-            return new MongoPaymentDao();
-        }
-        throw new IllegalArgumentException("Database type not supported");
-    }
 }
