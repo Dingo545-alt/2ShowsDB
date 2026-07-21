@@ -67,9 +67,9 @@ public class EncryptPasswords {
     }
 
     private static void updateEmployeePassword() throws ClassNotFoundException {
-        String loginUser = Config.require("MYSQL_USER");
-        String loginPasswd = Config.require("MYSQL_PASS");
-        String loginUrl = Config.get("MYSQL_URL", "jdbc:mysql://localhost:3306/moviedb");
+        String loginUser = AppConfig.require("MYSQL_USER");
+        String loginPasswd = AppConfig.require("MYSQL_PASS");
+        String loginUrl = AppConfig.get("MYSQL_URL", "jdbc:mysql://localhost:3306/moviedb");
 
         Class.forName("com.mysql.cj.jdbc.Driver");
 

@@ -6,7 +6,7 @@ jQuery(document).ready(function() {
       event.preventDefault();
 
       grecaptcha.ready(function() {
-          grecaptcha.execute("6Lc92NAsAAAAAC_649M6F1UmMzM6X0gB6LB3Oz7d", {action: "login"}).then(function(token){
+          grecaptcha.execute("6LcoYF0tAAAAACq-8RtzbWEFBoBsHBgbXt21noNY", {action: "login"}).then(function(token){
               let formData = loginFormElement.serialize();
               formData += "&g-recaptcha-response=" + encodeURIComponent(token);
 
