@@ -27,9 +27,6 @@ public class MovieListServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        long servletExecutionStartTime = System.nanoTime();
-        long queryExecutionElapsedTime = 0;
-
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
@@ -85,10 +82,7 @@ public class MovieListServlet extends HttpServlet {
 
             MovieListDao movieListDao = DaoFactory.getMovieListDao();
 
-            long queryExecutionStartTime = System.nanoTime();
-            MovieListResult result    = movieListDao.getMovies(params);
-            long queryExecutionEndTime = System.nanoTime();
-            queryExecutionElapsedTime = queryExecutionEndTime - queryExecutionStartTime;
+            MovieListResult result = movieListDao.getMovies(params);
 
             // -- Build JSON response --
             JsonArray moviesArray = new JsonArray();
@@ -134,28 +128,6 @@ public class MovieListServlet extends HttpServlet {
             response.setStatus(500);
         } finally {
             out.close();
-        }
-        long servletExecutionEndTime = System.nanoTime();
-        long servletExecutionElapsedTime = servletExecutionEndTime - servletExecutionStartTime;
-
-        String logDirPath = request.getServletContext().getRealPath("/WEB-INF/LogFiles");
-
-        File logDir = new File(logDirPath);
-        if (!logDir.exists()) {
-            logDir.mkdirs();
-        }
-
-        File logFile = new File(logDir, "mongo_log.txt");
-
-        // writes log in target build structure
-        synchronized (MovieListServlet.class) {
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
-                String line = servletExecutionElapsedTime + "," + queryExecutionElapsedTime;
-                bw.write(line);
-                bw.newLine();
-            } catch (IOException e) {
-                request.getServletContext().log("Error writing Log file: " + e.getMessage());
-            }
         }
     }
 

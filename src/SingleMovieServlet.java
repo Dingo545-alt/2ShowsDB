@@ -19,9 +19,6 @@ public class SingleMovieServlet extends HttpServlet{
     private static final long serialVersionUID = 3L;
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException{
 
-        long servletExecutionStartTime = System.nanoTime();
-        long queryExecutionElapsedTime = 0;
-
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
@@ -31,10 +28,7 @@ public class SingleMovieServlet extends HttpServlet{
         MovieDao movieDao = DaoFactory.getMovieDao();
 
         try {
-            long queryExecutionStartTime = System.nanoTime();
             Movie movie = movieDao.getMovieById(id);
-            long queryExecutionEndTime = System.nanoTime();
-            queryExecutionElapsedTime = queryExecutionEndTime - queryExecutionStartTime;
 
             if (movie == null) {
                 responseJson.addProperty("status", "error");
@@ -83,27 +77,5 @@ public class SingleMovieServlet extends HttpServlet{
             out.close();
         }
 
-        long servletExecutionEndTime = System.nanoTime();
-        long servletExecutionElapsedTime = servletExecutionEndTime - servletExecutionStartTime;
-
-        String logDirPath = request.getServletContext().getRealPath("/WEB-INF/LogFiles");
-
-        File logDir = new File(logDirPath);
-        if (!logDir.exists()) {
-            logDir.mkdirs();
-        }
-
-        File logFile = new File(logDir, "mongo_log.txt");
-
-        // writes log in target build structure
-        synchronized (MovieListServlet.class) {
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
-                String line = servletExecutionElapsedTime + "," + queryExecutionElapsedTime;
-                bw.write(line);
-                bw.newLine();
-            } catch (IOException e) {
-                request.getServletContext().log("Error writing Log file: " + e.getMessage());
-            }
-        }
     }
 }
