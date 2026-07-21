@@ -1,0 +1,141 @@
+.movies-container {
+    max-width: 75%;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+#movie-table {
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#movie-table th,
+#movie-table td {
+    border: 1px solid #ccc;
+    text-align: left;
+    padding: 8px 15px;
+}
+#error { color: red; }
+
+
+/* ---- Sortable column headers ---- */
+.sortable-header {
+    cursor: pointer;
+    user-select: none;  /* Prevent text selection on repeated clicks */
+}
+
+.sortable-header:hover {
+    background-color: #eaeaea;
+}
+
+.sortable-header.is-primary-sort-column {
+    background-color: #d0dcee;
+}
+
+.sortable-header.is-secondary-sort-column {
+    background-color: #e8edf4;
+}
+
+.sort-priority-badge {
+    display: inline-block;
+    min-width: 1.25em;
+    margin-left: 6px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background-color: #bcc9dc;
+    color: #1a3a6e;
+    font-size: 0.75em;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.is-primary-sort-column .sort-priority-badge {
+    background-color: #1a3a6e;
+    color: #fff;
+}
+
+.sort-direction-icon {
+    display: inline-block;
+    width: 1em;
+    margin-left: 4px;
+    text-align: center;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.is-primary-sort-column .sort-direction-icon {
+    color: #1a3a6e;
+    font-weight: bold;
+}
+
+.sort-hint {
+    margin-top: 12px;
+    font-size: 0.85em;
+    color: #666;
+    font-style: italic;
+}
+
+
+/* ---- Pagination control bar ---- */
+.pagination-control-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin: 12px 0;
+    padding: 10px 14px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.page-size-control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.page-size-control-group label {
+    font-weight: 600;
+}
+
+.page-size-control-group select {
+    padding: 4px 8px;
+}
+
+.pagination-button-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination-status-text {
+    color: #444;
+    font-size: 0.9em;
+    margin-right: 6px;
+}
+
+.previous-page-button,
+.next-page-button {
+    padding: 5px 12px;
+    cursor: pointer;
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+}
+
+.previous-page-button:hover:not(:disabled),
+.next-page-button:hover:not(:disabled) {
+    background-color: #f0f0f0;
+}
+
+.previous-page-button:disabled,
+.next-page-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

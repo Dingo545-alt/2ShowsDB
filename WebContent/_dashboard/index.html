@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="dashboard.js"></script>
+</head>
+
+<body>
+<header class="main-navbar">
+    <div class="navbar-content">
+        <a href="../main.html" class="logo">2Shows</a>
+    </div>
+    <nav class="navbar-links">
+        <a href="../movie-list.html">Movies</a>
+        <a href="index.html">Employee Dashboard</a>
+        <a href="../shopping-cart.html">Checkout</a>
+        <a href="../api/logout" class="logout-link">Logout</a>
+    </nav>
+</header>
+
+<main class="dashboard-container">
+    <h1 id="dashboard-title">Employee Dashboard</h1>
+
+    <section id="metadata-section">
+        <h3 id="dashboard-metadata-title">Database Metadata</h3>
+        <div id="metadata-container">
+            <!-- Table names injected here by js -->
+        </div>
+    </section>
+
+    <hr>
+
+    <section id="add-star-section">
+        <h3 id="dashboard-add-star-title">Add Star</h3>
+        <div id="add-star-status-message"></div>
+        <form id="add-star-form">
+            <label for="star-name">Star Name *</label>
+            <input type="text" id="star-name" name="star-name" required>
+
+            <label for="birth-year">Birth Year</label>
+            <input type="number" id="birth-year" name="birth-year">
+
+            <button type="submit" id="dashboard-add-star-submit-button">Submit</button>
+        </form>
+    </section>
+
+    <hr>
+
+    <section id="add-movie-section">
+        <h3 id="dashboard-add-movie-title">Add Movie</h3>
+        <div id="add-movie-status-message"></div>
+        <form id="add-movie-form">
+            <label for="movie-title">Movie Title *</label>
+            <input type="text" id="movie-title" name="title" required>
+
+            <label for="movie-year">Release Year *</label>
+            <input type="number" id="movie-year" name="year" required>
+
+            <label for="movie-director">Director *</label>
+            <input type="text" id="movie-director" name="director" required>
+
+            <label for="movie-price">Price *</label>
+            <input type="number" id="movie-price" name="price" required>
+
+            <label for="movie-star">Star Name *</label>
+            <input type="text" id="movie-star" name="star-name" required>
+
+            <label for="movie-genre">Genre *</label>
+            <input type="text" id="movie-genre" name="genre-name" required>
+
+            <button type="submit" id="dashboard-add-movie-submit-button">Submit</button>
+        </form>
+    </section>
+</main>
+
+</body>
+</html>

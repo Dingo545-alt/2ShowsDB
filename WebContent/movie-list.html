@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Movie List</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/movie-list.css">
+</head>
+<body>
+<!-- Navbar -->
+<header class="main-navbar">
+    <div class="navbar-content">
+        <a href="main.html" class="logo">2Shows</a>
+    </div>
+    <form class="navbar-search" action="movie-list.html" method="GET">
+        <div style="position:relative; display:flex; gap:6px; width:100%;">
+            <input type="search"
+                   id="navbar-search-input"
+                   name="fulltext"
+                   placeholder="Search movies…"
+                   autocomplete="off">
+            <button type="button" id="navbar-search-button">Search</button>
+            <ul id="navbar-autocomplete-dropdown" class="autocomplete-dropdown" hidden></ul>
+        </div>
+    </form>
+    <nav class="navbar-links">
+        <a href="movie-list.html">Movies</a>
+        <a href="_dashboard/index.html">Employee Dashboard</a>
+        <a href="shopping-cart.html">Checkout</a>
+        <a href="api/logout" class="logout-link">Logout</a>
+    </nav>
+</header>
+
+<main class="movies-container">
+    <h1>Top Rated Movies</h1>
+    <p id="error"></p>
+    <table id="movie-table">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th class="sortable-header" data-sort-field="title">
+                <span class="header-label">Title</span>
+                <span class="sort-priority-badge" aria-hidden="true"></span>
+                <span class="sort-direction-icon" aria-hidden="true"></span>
+            </th>
+            <th>Year</th>
+            <th>Director</th>
+            <th class="sortable-header" data-sort-field="rating">
+                <span class="header-label">Rating</span>
+                <span class="sort-priority-badge" aria-hidden="true"></span>
+                <span class="sort-direction-icon" aria-hidden="true"></span>
+            </th>
+            <th>Genres</th>
+            <th>Stars</th>
+            <th>Cart</th>
+        </tr>
+        </thead>
+        <tbody id="movie-table-body">
+        <!-- rows injected by JS -->
+        </tbody>
+    </table>
+
+    <div class="pagination-control-bar">
+        <div class="page-size-control-group">
+            <label for="page-size-select">Movies per page:</label>
+            <select id="page-size-select" name="pageSize">
+                <option value="10" selected>10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+        <div class="pagination-button-group">
+            <span class="pagination-status-text"></span>
+            <button type="button" class="previous-page-button">Previous</button>
+            <button type="button" class="next-page-button">Next</button>
+        </div>
+    </div>
+
+    <p class="sort-hint">
+        Click a column header to change the sort. Click the primary column (1) to flip its direction; click the secondary column (2) to promote it to primary.
+    </p>
+
+</main>
+
+<!-- Load jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="js/movie-list.js"></script>
+<script src="js/navbar-search.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Single Star</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/single-star.css">
+</head>
+<body>
+<header class="main-navbar">
+    <div class="navbar-content">
+        <a href="main.html" class="logo">2Shows</a>
+    </div>
+    <form class="navbar-search" action="movie-list.html" method="GET">
+        <div style="position:relative; display:flex; gap:6px; width:100%;">
+            <input type="search"
+                   id="navbar-search-input"
+                   name="fulltext"
+                   placeholder="Search movies…"
+                   autocomplete="off">
+            <button type="button" id="navbar-search-button">Search</button>
+            <ul id="navbar-autocomplete-dropdown" class="autocomplete-dropdown" hidden></ul>
+        </div>
+    </form>
+    <nav class="navbar-links">
+        <a href="movie-list.html">Movies</a>
+        <a href="_dashboard/index.html">Employee Dashboard</a>
+        <a href="shopping-cart.html">Checkout</a>
+        <a href="api/logout" class="logout-link">Logout</a>
+    </nav>
+</header>
+
+<main class="star-container">
+    <a href="movie-list.html" id="back-to-movie-list" class="back-button">← Back to Movie List</a>
+    <section class="star-profile">
+        <h1 id="star_name"></h1>
+        <p><strong>Birth Year:</strong><span id="star_dob"></span></p>
+    </section>
+    <section class="star-movies">
+        <h2>Filmography</h2>
+        <table id="star_movie_table">
+            <thead>
+            <tr>
+                <th>Movie Title</th>
+                <th>Release Year</th>
+            </tr>
+            </thead>
+            <tbody id="star_table_movie_body"></tbody>
+        </table>
+    </section>
+</main>
+
+<!-- Load jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="js/single-star.js"></script>
+<script src="js/navbar-search.js"></script>
+</body>
+</html>

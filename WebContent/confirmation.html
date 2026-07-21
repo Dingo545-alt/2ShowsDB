@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Order Confirmation</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/payment.css">
+</head>
+<body>
+<header class="main-navbar">
+  <div class="navbar-content">
+    <a href="main.html" class="logo">2Shows</a>
+  </div>
+  <form class="navbar-search" action="movie-list.html" method="GET">
+    <div style="position:relative; display:flex; gap:6px; width:100%;">
+      <input type="search"
+             id="navbar-search-input"
+             name="fulltext"
+             placeholder="Search movies…"
+             autocomplete="off">
+      <button type="button" id="navbar-search-button">Search</button>
+      <ul id="navbar-autocomplete-dropdown" class="autocomplete-dropdown" hidden></ul>
+    </div>
+  </form>
+  <nav class="navbar-links">
+    <a href="movie-list.html">Movies</a>
+    <a href="_dashboard/index.html">Employee Dashboard</a>
+    <a href="shopping-cart.html">Checkout</a>
+    <a href="api/logout" class="logout-link">Logout</a>
+  </nav>
+</header>
+
+<main class="payment-container">
+  <a href="movie-list.html" id="back-to-movie-list" class="back-button">← Back to Movie List</a>
+  <h1>Order Confirmed</h1>
+  <p>Thanks for your purchase! Here's a summary:</p>
+
+  <p id="confirmation-empty" style="display:none;">
+    No recent order found. <a href="movie-list.html">Browse movies</a>.
+  </p>
+
+  <table id="confirmation-table">
+    <thead>
+    <tr>
+      <th>Movie Title</th>
+      <th>Quantity</th>
+      <th>Price</th>
+      <th>Line Total</th>
+    </tr>
+    </thead>
+    <tbody id="confirmation-body"></tbody>
+  </table>
+
+  <h3>Total Paid: $<span id="confirmation-total">0.00</span></h3>
+  <p>Sale IDs: <span id="confirmation-sale-ids"></span></p>
+
+  <a href="movie-list.html" class="back-button">Continue Shopping</a>
+</main>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="js/confirmation.js"></script>
+<script src="js/navbar-search.js"></script>
+</body>
+</html>

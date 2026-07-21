@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Single Movie</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/single-movie.css">
+</head>
+<body>
+<!-- Navbar -->
+<header class="main-navbar">
+    <div class="navbar-content">
+        <a href="main.html" class="logo">2Shows</a>
+    </div>
+    <form class="navbar-search" action="movie-list.html" method="GET">
+        <div style="position:relative; display:flex; gap:6px; width:100%;">
+            <input type="search"
+                   id="navbar-search-input"
+                   name="fulltext"
+                   placeholder="Search movies…"
+                   autocomplete="off">
+            <button type="button" id="navbar-search-button">Search</button>
+            <ul id="navbar-autocomplete-dropdown" class="autocomplete-dropdown" hidden></ul>
+        </div>
+    </form>
+    <nav class="navbar-links">
+        <a href="movie-list.html">Movies</a>
+        <a href="_dashboard/index.html">Employee Dashboard</a>
+        <a href="shopping-cart.html">Checkout</a>
+        <a href="api/logout" class="logout-link">Logout</a>
+    </nav>
+</header>
+
+<main class="movie-container">
+    <a href="movie-list.html" id="back-to-movie-list" class="back-button">← Back to Movie List</a>
+    <header class="movie-header">
+        <h1 id="movie_title"></h1>
+        <div class="movie-meta">
+            <span id="movie_year"></span>
+            <span class="rating-badge"> * <span id="movie_rating"></span></span>
+        </div>
+        <button type="button" id="add-to-cart-single-movie" class="add-to-cart-button">
+            Add to Cart
+        </button>
+    </header>
+    <section class="movie-info">
+        <p><strong>Director:</strong> <span id="movie_director"></span></p>
+        <div class="genre-list">
+            <strong>Genres:</strong>
+            <div id="movie_genres"></div>
+        </div>
+        <div class="star-list">
+            <strong>Stars:</strong>
+            <ul id="movie_stars"></ul>
+        </div>
+    </section>
+</main>
+
+<!-- Load jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="js/single-movie.js"></script>
+<script src="js/navbar-search.js"></script>
+</body>
+</html>

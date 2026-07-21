@@ -1,0 +1,51 @@
+The parser works by loading 3 xml files into the MySQL database in a streaming, multi-threaded process.
+
+Files:
+DataRecords.java         - defines the immutable record types used from parser to writer through the queue
+ActorSaxParser.java      - reads actors63.xml and emits one "ActorRecord" per "<actor>" element
+MovieSaxParser.java      - reads mains243.xml and emits one "MovieRecord" per "<film>" element, including all genre codes.
+CastSaxParser.java       - reads casts124.xml and emits one "CastRecord" per cast entry, skipping placeholder names like "s a".
+DbWriter.java            - consumer thread that pulls records off the queue and routes each one to the matching stored procedure for insertion.
+XmlLoader.java (Main)    - main entry point that wires everything together and runs the two-phase load (movies + actors first, then casts).
+GenreCodeScanner.java    - standalone tool run once before the main load to list every genre code in the XML so the user can fill in the mapping table.
+stored_procedures.sql    - defines the MySQL tables and stored procedures that handle ID generation, duplicate detection, and all database inserts.
+InconsistencyLogger.java - logs any errors when inserting and then writes a report
+
+Step 0 (already done in the repo):
+First, before any run, a one-time setup must be performed. It uses GenreCodeScanner to scan the movies XML and report
+every genre code it finds along with how often each appears. Because the XML uses short codes that does not exist in our
+database, we translate it through a "genre_code_map" lookup table that the user fills in based on the scanner's output.
+Any unknown codes encountered are silently skipped rather than guessed at.
+
+PARSING AND LOADING:
+--phase 1--
+The actual load happens in 2 phases. Phase 1 loads movies and actors at the same time because neither depends on each
+other. A SAX parser thread reads each XML file event-by-event and pushes records into a shared memory queue as it
+encounters them, while a pool of writer threads pulls record off the queue and inserts the into the database. The queue
+acts as a buffer between the XML reader (fast) and the slower database writer, so neither side has to wait on the other.
+When a movie or actor already exists in the database, only missing fields get filled in (matched by title or name),
+existing data is never overwritten. New records get freshly generated IDs from a small counter table that picks up
+where existing IDs left off.
+
+--phase 2--
+Phase 2 loads the cas relationship, linking actors to movies they appear in. Cast entries that reference unknown movies
+or use placeholder names like "s a" are skipped to keep the database clean. Throughout the entire process, the writer
+threads commit work to the database in batches of 200 records(customizable in code) at a time, which keeps load fast
+without overwhelming MySQL or risking too much lost progress if something fails mid-run.
+
+Performance Optimization 1 - Threading:
+Threading uses a producer-consumer model to parallelize work that would otherwise be done sequentially. One thread
+acts as the producer, parsing the XML file and pushing each record into a shared memory queue as soon as it is
+extracted. Multiple writer threads (4 currently, but can be changed) act as consumers, each independently pulling
+records off the queue and writing them to the database. This works well because XML parsing is fast while database
+writers are slow. We keep the database busy with multiple inserts happening while the parser continues to feed new
+records into the queue. The queue itself smooths out any speed mismatch (typically caused by deadlock prevention)
+between the two sides, blocking the parser briefly if writers fall behind so memory does not balloon.
+
+Performance Optimization 2 - Stored Procedures:
+All database logic for inserting and updating records lives in stored procedures inside MySQL rather than Java. When a
+writer thread needs to insert a movie, it makes a single call like "CALL upsert_movie(....)" and MySQL handles the
+duplicate check, ID generation, and conditional update. This alternative of having Java do the work piece by piece
+is faster and easier to understand. If Java were to be used, it would require sending separate SELECT to check if the
+movie exists, then an INSERT or UPDATE based on the results, which requires 3 trips to the database instead of one. The
+stored procedures also has the duplicate-handling logic.

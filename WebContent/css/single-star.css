@@ -1,0 +1,51 @@
+.star-container {
+    max-width: 75%;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.star-profile,
+.star-movies {
+    padding: 30px;
+    border-radius: 8px;
+}
+
+.star-profile h1 {
+    margin: 0;
+    font-size: 2.5em;
+}
+
+.star-movies h2 {
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+}
+
+#star_movie_table {
+    width: auto;
+}
+
+#star_movie_table th,
+#star_movie_table td {
+    border: 1px solid #ccc;
+    text-align: left;
+    padding: 8px 15px;
+}
+
+.back-button {
+    display: inline-block;
+    margin-bottom: 16px;
+    padding: 6px 12px;
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    color: #1a3a6e;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.back-button:hover {
+    background-color: #f0f0f0;
+}

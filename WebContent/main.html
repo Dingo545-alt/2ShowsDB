@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Main Page</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="js/main.js"></script>
+</head>
+
+<header class="main-navbar">
+    <div class="navbar-content">
+        <a href="main.html" class="logo">2Shows</a>
+    </div>
+    <nav class="navbar-links">
+        <a href="movie-list.html">Movies</a>
+        <a href="_dashboard/index.html">Employee Dashboard</a>
+        <a href="shopping-cart.html">Checkout</a>
+        <a href="api/logout" class="logout-link">Logout</a>
+    </nav>
+</header>
+
+<body>
+<!-- Full-text search (new) -->
+<div class="fulltext-search-container">
+    <h1>Search Movies</h1>
+    <div class="fulltext-search-wrapper">
+        <input type="search"
+               id="fulltext-input"
+               placeholder='Search titles, e.g. "good u"…'
+               autocomplete="off">
+        <button type="button" id="fulltext-submit-button">Search</button>
+        <ul id="autocomplete-dropdown" class="autocomplete-dropdown" hidden></ul>
+    </div>
+</div>
+
+<!-- Keyword search (original — preserved untouched) -->
+<div class="search-container">
+    <h1>Advanced Search</h1>
+    <form action="movie-list.html" method="GET">
+        <label for="title-search">Title</label>
+        <input type="search" id="title-search" placeholder="Title" name="title">
+        <label for="director-search">Director</label>
+        <input type="search" id="director-search" placeholder="Director" name="director">
+        <label for="star-search">Star's Name</label>
+        <input type="search" id="star-search" placeholder="Star Name" name="star">
+        <label for="year-search">Year</label>
+        <input type="number" id="year-search" name="year" min="1900" max="2099" step="1">
+        <button type="submit" id="search-submit-button">Search</button>
+        <button type="reset" id="search-reset-button">Reset</button>
+    </form>
+</div>
+
+<div class="genres-container">
+    <h1>Browse by Genre</h1>
+</div>
+<div class="titles-container">
+    <h1>Browse by Title</h1>
+</div>
+</body>
+</html>
