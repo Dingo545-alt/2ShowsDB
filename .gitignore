@@ -177,3 +177,5 @@ buildNumber.properties
 config.properties
 .env
 *.env
+
+/archive/
