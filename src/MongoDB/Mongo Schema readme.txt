@@ -17,12 +17,23 @@ movies
   "stars": [
     { "id": "nm0000209", "name": "Morgan Freeman" },
     { "id": "nm0000151", "name": "Tim Robbins"    }
-  ]
+  ],
+  "poster": {
+    "path": "/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
+    "sizes": {
+      "w342":     "https://image.tmdb.org/t/p/w342/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
+      "original": "https://image.tmdb.org/t/p/original/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg"
+    }
+  }
 }
 
 - rating and vote_count are null for unrated movies
 - genres is alphabetically sorted
 - stars ordered by career movie count DESC, then name ASC
+- poster is null when the source has no poster image; path is the TMDB-relative
+  path (kept for reference/debugging), sizes holds pre-resolved full URLs for
+  the sizes the app actually uses (w342 for list thumbnails, original for the
+  detail page) so the app never has to know TMDB's image base URL / size scheme
 
 
 stars
