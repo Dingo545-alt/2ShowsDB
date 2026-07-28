@@ -9,6 +9,16 @@ function handleSingleMovieResults(resultData) {
     );
     jQuery("#movie_director").text(resultData.director);
 
+    // Poster
+    const posterUrl = resultData.poster ? resultData.poster.original : null;
+    if (posterUrl) {
+        jQuery("#movie_poster_image").attr("src", posterUrl).attr("alt", resultData.title + " poster").prop("hidden", false);
+        jQuery("#movie_poster_placeholder").prop("hidden", true);
+    } else {
+        jQuery("#movie_poster_image").prop("hidden", true);
+        jQuery("#movie_poster_placeholder").prop("hidden", false);
+    }
+
     // Genres (displaying as tags)
     let genresHTML = resultData.genres.map(g =>
         `<a href="movie-list.html?genre=${encodeURIComponent(g.name)}" class="genres-tag">${g.name}</a>`

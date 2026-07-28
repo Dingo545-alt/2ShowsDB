@@ -7,6 +7,47 @@
     background-color: #f9f9f9;
 }
 
+.movie-layout {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.movie-poster {
+    flex: 0 0 auto;
+    width: 220px;
+}
+
+.movie-poster img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+.movie-poster .poster-placeholder[hidden] {
+    display: none;
+}
+
+.movie-poster .poster-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 320px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #eee;
+    color: #999;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.movie-content {
+    flex: 1;
+    min-width: 0;
+}
+
 .rating-badge {
     background-color: #f3ce13; /* Gold */
     padding: 4px 8px;

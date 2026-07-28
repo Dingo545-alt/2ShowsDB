@@ -199,9 +199,14 @@ function populateMovieTableWithResults(movieArray, state) {
                 ? "N/A"
                 : movie.movie_rating;
 
+        const posterHTML = movie.movie_poster_thumbnail_url
+            ? `<img src="${movie.movie_poster_thumbnail_url}" alt="${movie.movie_title} poster" class="poster-thumbnail">`
+            : `<span class="poster-placeholder">N/A</span>`;
+
         const rowHTML = `
             <tr>
                 <td>${rowNumberOffset + indexWithinPage + 1}</td>
+                <td>${posterHTML}</td>
                 <td>
                     <a href="single-movie.html?id=${movie.movie_id}">
                         ${movie.movie_title}

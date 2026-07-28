@@ -2,6 +2,7 @@ import DataAccessObject.DaoFactory;
 import DataAccessObject.Interfaces.MovieDao;
 import Model.Genre;
 import Model.Movie;
+import Model.Poster;
 import Model.Star;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -45,6 +46,17 @@ public class SingleMovieServlet extends HttpServlet{
                 responseJson.add("rating", JsonNull.INSTANCE);
             } else {
                 responseJson.addProperty("rating", movie.getRating());
+            }
+
+            Poster poster = movie.getPoster();
+            if (poster == null) {
+                responseJson.add("poster", JsonNull.INSTANCE);
+            } else {
+                JsonObject posterJson = new JsonObject();
+                posterJson.addProperty("path", poster.getPath());
+                posterJson.addProperty("w342", poster.getW342());
+                posterJson.addProperty("original", poster.getOriginal());
+                responseJson.add("poster", posterJson);
             }
 
             JsonArray genresArray = new JsonArray();

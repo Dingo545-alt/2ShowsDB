@@ -93,6 +93,7 @@ public class MovieListServlet extends HttpServlet {
                 movieObj.addProperty("movie_year",     movie.getMovieYear());
                 movieObj.addProperty("movie_director", movie.getMovieDirector());
                 movieObj.addProperty("movie_rating",   movie.getMovieRating());
+                movieObj.addProperty("movie_poster_thumbnail_url", movie.getPosterThumbnailUrl());
 
                 JsonArray genresArray = new JsonArray();
                 for (String genre : movie.getGenres()) {

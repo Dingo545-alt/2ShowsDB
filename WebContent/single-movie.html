@@ -32,24 +32,32 @@
 
 <main class="movie-container">
     <a href="movie-list.html" id="back-to-movie-list" class="back-button">← Back to Movie List</a>
-    <header class="movie-header">
-        <h1 id="movie_title"></h1>
-        <div class="movie-meta">
-            <span id="movie_year"></span>
-            <span class="rating-badge"> * <span id="movie_rating"></span></span>
+    <div class="movie-layout">
+        <div class="movie-poster">
+            <img id="movie_poster_image" alt="" hidden>
+            <span id="movie_poster_placeholder" class="poster-placeholder" hidden>No poster available</span>
         </div>
-    </header>
-    <section class="movie-info">
-        <p><strong>Director:</strong> <span id="movie_director"></span></p>
-        <div class="genre-list">
-            <strong>Genres:</strong>
-            <div id="movie_genres"></div>
+        <div class="movie-content">
+            <header class="movie-header">
+                <h1 id="movie_title"></h1>
+                <div class="movie-meta">
+                    <span id="movie_year"></span>
+                    <span class="rating-badge"> * <span id="movie_rating"></span></span>
+                </div>
+            </header>
+            <section class="movie-info">
+                <p><strong>Director:</strong> <span id="movie_director"></span></p>
+                <div class="genre-list">
+                    <strong>Genres:</strong>
+                    <div id="movie_genres"></div>
+                </div>
+                <div class="star-list">
+                    <strong>Stars:</strong>
+                    <ul id="movie_stars"></ul>
+                </div>
+            </section>
         </div>
-        <div class="star-list">
-            <strong>Stars:</strong>
-            <ul id="movie_stars"></ul>
-        </div>
-    </section>
+    </div>
 </main>
 
 <!-- Load jQuery -->
