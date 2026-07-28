@@ -34,8 +34,9 @@ import requests
 from pymongo import MongoClient, UpdateOne
 
 # -- Config ------------------------------------------------------------------
-TMDB_BASE    = "https://api.themoviedb.org/3"
-TMDB_API_KEY = os.environ.get("TMDB_API_KEY", "")
+TMDB_BASE       = "https://api.themoviedb.org/3"
+TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p"
+TMDB_API_KEY    = os.environ.get("TMDB_API_KEY", "")
 MONGO_URI    = os.environ.get("MONGO_URI", "mongodb://localhost:27017")
 MONGO_DB     = os.environ.get("MONGO_DB", "moviedb")
 
@@ -71,6 +72,20 @@ def movie_id(detail: dict) -> str:
 def star_id(person: dict) -> str:
     """IMDb nm-id when available, else tmdb:p<id>."""
     return person.get("imdb_id") or f"tmdb:p{person['id']}"
+
+
+def build_poster(poster_path: str | None) -> dict | None:
+    """Resolves a TMDB poster_path into the stored poster sub-document, or
+    None if the movie has no poster on TMDB."""
+    if not poster_path:
+        return None
+    return {
+        "path": poster_path,
+        "sizes": {
+            "w342":     f"{TMDB_IMAGE_BASE}/w342{poster_path}",
+            "original": f"{TMDB_IMAGE_BASE}/original{poster_path}",
+        },
+    }
 
 
 # -- Fetch helpers --------------------------------------------------------------
@@ -112,6 +127,8 @@ def build_movie_doc(detail: dict, price: float) -> dict | None:
     rating     = round(float(vote_avg), 1) if vote_avg else None
     votes      = int(vote_count)           if vote_count else None
 
+    poster = build_poster(detail.get("poster_path"))
+
     # Stars: TMDB billing order used by default; overridden by career-count sort
     # in main() when --fetch-star-counts is set.
     cast = detail.get("credits", {}).get("cast", [])
@@ -130,6 +147,7 @@ def build_movie_doc(detail: dict, price: float) -> dict | None:
         "vote_count": votes,
         "genres":     genres,
         "stars":      stars,
+        "poster":     poster,
     }
 
 

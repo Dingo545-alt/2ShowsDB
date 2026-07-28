@@ -23,6 +23,7 @@ public class MovieListResult {
         private String       movieRating;
         private List<String> genres;
         private List<StarSummary> stars;
+        private String       posterThumbnailUrl;
 
         public MovieSummary() {}
 
@@ -46,6 +47,9 @@ public class MovieListResult {
 
         public List<StarSummary> getStars()               { return stars; }
         public void              setStars(List<StarSummary> v){ this.stars = v; }
+
+        public String getPosterThumbnailUrl()        { return posterThumbnailUrl; }
+        public void   setPosterThumbnailUrl(String v){ this.posterThumbnailUrl = v; }
     }
 
     public static class StarSummary {

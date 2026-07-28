@@ -41,7 +41,7 @@ public class MongoMovieListDao implements MovieListDao {
         int totalCount = (int) movieCollection.countDocuments(filter);
 
         Bson projection = Projections.fields(
-                Projections.include("_id", "title", "year", "director", "rating", "genres", "stars")
+                Projections.include("_id", "title", "year", "director", "rating", "genres", "stars", "poster")
         );
 
         List<Document> docs = movieCollection
@@ -194,6 +194,14 @@ public class MongoMovieListDao implements MovieListDao {
             }
         }
         s.setStars(top3Stars);
+
+        Document posterDoc = doc.get("poster", Document.class);
+        if (posterDoc != null) {
+            Document sizes = posterDoc.get("sizes", Document.class);
+            if (sizes != null) {
+                s.setPosterThumbnailUrl(sizes.getString("w342"));
+            }
+        }
 
         return s;
     }

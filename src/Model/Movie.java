@@ -13,6 +13,7 @@ public class Movie {
     private int voteCount;
     private List<Genre> genres = new ArrayList<>();
     private List<Star> stars = new ArrayList<>();
+    private Poster poster;
 
     public Movie() {}
 
@@ -60,4 +61,7 @@ public class Movie {
 
     public List<Star> getStars() { return stars; }
     public void setStars(List<Star> stars) { this.stars = stars; }
+
+    public Poster getPoster() { return poster; }
+    public void setPoster(Poster poster) { this.poster = poster; }
 }

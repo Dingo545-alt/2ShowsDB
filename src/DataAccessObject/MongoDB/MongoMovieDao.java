@@ -4,6 +4,7 @@ import DataAccessObject.DaoFactory;
 import DataAccessObject.Interfaces.MovieDao;
 import Model.Genre;
 import Model.Movie;
+import Model.Poster;
 import Model.Star;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -77,6 +78,18 @@ public class MongoMovieDao implements MovieDao {
 
                 movie.getStars().add(star);
             }
+        }
+
+        Document posterDoc = doc.get("poster", Document.class);
+        if (posterDoc != null) {
+            Poster poster = new Poster();
+            poster.setPath(posterDoc.getString("path"));
+            Document sizes = posterDoc.get("sizes", Document.class);
+            if (sizes != null) {
+                poster.setW342(sizes.getString("w342"));
+                poster.setOriginal(sizes.getString("original"));
+            }
+            movie.setPoster(poster);
         }
 
         return movie;
