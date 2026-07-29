@@ -3,6 +3,7 @@ package DataAccessObject.MongoDB;
 import DataAccessObject.DaoFactory;
 import DataAccessObject.Interfaces.StarDao;
 import Model.Movie;
+import Model.Photo;
 import Model.Star;
 
 import com.mongodb.client.MongoClient;
@@ -34,6 +35,18 @@ public class MongoStarDao implements StarDao {
 
         // dob is an ISO 8601 date string ("YYYY-MM-DD"); null when not known
         star.setDob(doc.getString("dob"));
+
+        Document photoDoc = doc.get("photo", Document.class);
+        if (photoDoc != null) {
+            Photo photo = new Photo();
+            photo.setPath(photoDoc.getString("path"));
+            Document sizes = photoDoc.get("sizes", Document.class);
+            if (sizes != null) {
+                photo.setW185(sizes.getString("w185"));
+                photo.setOriginal(sizes.getString("original"));
+            }
+            star.setPhoto(photo);
+        }
 
         // Embedded movies array - alr sorted year DESC, title ASC by migration
         List<Document> rawMovies = doc.getList("movies", Document.class);

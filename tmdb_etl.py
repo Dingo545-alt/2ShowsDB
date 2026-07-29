@@ -5,7 +5,7 @@ tmdb_etl.py  —  Fetch movies from the TMDB API and load them into MongoDB
 
 Schema target:
   movies : { _id, title, year, director, price, rating, vote_count, genres[], stars[{id,name}] }
-  stars  : { _id, name, dob, movies[{id,title,year}] }
+  stars  : { _id, name, dob, photo, movies[{id,title,year}] }
 
 Setup:
   pip install requests pymongo
@@ -18,9 +18,10 @@ Usage:
   python tmdb_etl.py --pages 20                 # 400 movies
   python tmdb_etl.py --pages 20 --fetch-star-counts   # accurate star ordering (slow)
 
-Star dob note:
+Star dob / photo note:
   Every ETL run fetches /person/{id} for each newly-seen star to populate dob
-  (one extra API call per unique actor) — dob is core schema data, not optional.
+  and photo (one extra API call per unique actor, shared by both fields) —
+  dob and photo are core schema data, not optional.
 
 Star ordering note:
   The schema orders stars by career-movie-count DESC, then name ASC (matching MongoMigration).
@@ -89,6 +90,20 @@ def build_poster(poster_path: str | None) -> dict | None:
         "sizes": {
             "w342":     f"{TMDB_IMAGE_BASE}/w342{poster_path}",
             "original": f"{TMDB_IMAGE_BASE}/original{poster_path}",
+        },
+    }
+
+
+def build_photo(profile_path: str | None) -> dict | None:
+    """Resolves a TMDB profile_path into the stored star photo sub-document,
+    or None if the person has no profile image on TMDB."""
+    if not profile_path:
+        return None
+    return {
+        "path": profile_path,
+        "sizes": {
+            "w185":     f"{TMDB_IMAGE_BASE}/w185{profile_path}",
+            "original": f"{TMDB_IMAGE_BASE}/original{profile_path}",
         },
     }
 
@@ -241,6 +256,7 @@ def build_star_docs(movie_docs: list[dict], cast_map: dict) -> list[dict]:
             "_id":    sid,
             "name":   info["name"],
             "dob":    info.get("dob"),
+            "photo":  info.get("photo"),
             "movies": movies_sorted,
         })
     return docs
@@ -272,15 +288,15 @@ def upsert_stars_in_batches(col, star_docs: list[dict]) -> None:
     """
     Upserts star documents.
 
-    For new stars     : inserts name via $setOnInsert; dob is $setOnInsert'd as
-                         null only if this run has no dob for the star, so the
-                         field still exists on the doc.
-    For existing stars : name is never overwritten. dob is only ever $set when
-                         this run resolved a real (non-null) value — an already
-                         null dob is never used to clobber a previously-known
-                         one, and a previously-null dob gets filled in as soon
-                         as a later run resolves it (fixes dob being frozen at
-                         null forever).
+    For new stars     : inserts name via $setOnInsert; dob/photo are
+                         $setOnInsert'd as null only if this run has no value
+                         for the star, so the fields still exist on the doc.
+    For existing stars : name is never overwritten. dob/photo are only ever
+                         $set when this run resolved a real (non-null) value —
+                         an already null value is never used to clobber a
+                         previously-known one, and a previously-null value
+                         gets filled in as soon as a later run resolves it
+                         (fixes dob/photo being frozen at null forever).
     In all cases        : merges new movie stubs in without duplicating.
 
     After all batches, sorts each star's movies[] by year DESC, title ASC using
@@ -297,10 +313,17 @@ def upsert_stars_in_batches(col, star_docs: list[dict]) -> None:
         for d in batch:
             set_on_insert = {"name": d["name"]}
             update = {"$addToSet": {"movies": {"$each": d["movies"]}}}
+            set_fields = {}
             if d["dob"]:
-                update["$set"] = {"dob": d["dob"]}
+                set_fields["dob"] = d["dob"]
             else:
                 set_on_insert["dob"] = None
+            if d["photo"]:
+                set_fields["photo"] = d["photo"]
+            else:
+                set_on_insert["photo"] = None
+            if set_fields:
+                update["$set"] = set_fields
             update["$setOnInsert"] = set_on_insert
             ops.append(UpdateOne({"_id": d["_id"]}, update, upsert=True))
         col.bulk_write(ops, ordered=False)
@@ -365,7 +388,7 @@ def main():
     # -- Step 2: fetch detail + credits ----------------------------------------
     print(f"\n[Step 2] Fetching movie details + credits …")
     movie_docs: list[dict] = []
-    cast_map: dict[str, dict] = {}   # star_id → {name, dob, tmdb_id}
+    cast_map: dict[str, dict] = {}   # star_id → {name, dob, photo, tmdb_id}
     skipped = 0
 
     for i, tid in enumerate(tmdb_ids, 1):
@@ -389,6 +412,7 @@ def main():
                 cast_map[sid] = {
                     "name":    person["name"],
                     "dob":     None,
+                    "photo":   None,
                     "tmdb_id": person["id"],
                 }
 
@@ -405,6 +429,7 @@ def main():
         try:
             person = tmdb_get(f"/person/{info['tmdb_id']}")
             cast_map[sid]["dob"] = person.get("birthday") or None
+            cast_map[sid]["photo"] = build_photo(person.get("profile_path"))
 
             if args.fetch_star_counts:
                 credits = tmdb_get(f"/person/{info['tmdb_id']}/movie_credits")

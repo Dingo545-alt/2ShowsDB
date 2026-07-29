@@ -42,6 +42,13 @@ stars
   "_id":  "nm0000151",
   "name": "Tim Robbins",
   "dob":  "1958-10-16",
+  "photo": {
+    "path": "/eOo3bfnyCFbcw0lseYUZDgvhpn0.jpg",
+    "sizes": {
+      "w185":     "https://image.tmdb.org/t/p/w185/eOo3bfnyCFbcw0lseYUZDgvhpn0.jpg",
+      "original": "https://image.tmdb.org/t/p/original/eOo3bfnyCFbcw0lseYUZDgvhpn0.jpg"
+    }
+  },
   "movies": [
     { "id": "tt0245429", "title": "Mystic River",             "year": 2003 },
     { "id": "tt0111161", "title": "The Shawshank Redemption", "year": 1994 }
@@ -49,6 +56,11 @@ stars
 }
 
 - dob is an ISO 8601 date string ("YYYY-MM-DD"); null when unknown
+- photo is null when the source has no profile image; path is the TMDB-relative
+  path (kept for reference/debugging), sizes holds pre-resolved full URLs for
+  the sizes the app actually uses (w185 for list/detail thumbnails, original
+  for a full-size view) so the app never has to know TMDB's image base URL /
+  size scheme
 - movies ordered by year DESC, then title ASC
 
 

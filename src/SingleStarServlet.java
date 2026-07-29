@@ -55,6 +55,18 @@ public class SingleStarServlet extends HttpServlet {
                 starJson.addProperty("dob", star.getDob());
             }
 
+            if (star.getPhoto() != null) {
+                JsonObject photoJson = new JsonObject();
+                photoJson.addProperty("path", star.getPhoto().getPath());
+                JsonObject sizesJson = new JsonObject();
+                sizesJson.addProperty("w185", star.getPhoto().getW185());
+                sizesJson.addProperty("original", star.getPhoto().getOriginal());
+                photoJson.add("sizes", sizesJson);
+                starJson.add("photo", photoJson);
+            } else {
+                starJson.add("photo", null);
+            }
+
             JsonArray moviesArray = new JsonArray();
             for (Movie movie : star.getMovies()) {
                 JsonObject movieJson = new JsonObject();

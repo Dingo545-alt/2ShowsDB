@@ -7,6 +7,7 @@ public class Star {
     private String id;
     private String name;
     private String dob; // ISO 8601 date string ("YYYY-MM-DD"), null when unknown
+    private Photo photo;
     private int movieCount;
     private List<Movie> movies = new ArrayList<>();
 
@@ -30,6 +31,9 @@ public class Star {
 
     public String getDob() { return dob; }
     public void setDob(String dob) { this.dob = dob; }
+
+    public Photo getPhoto() { return photo; }
+    public void setPhoto(Photo photo) { this.photo = photo; }
 
     public int getMovieCount() { return movieCount; }
     public void setMovieCount(int movieCount) { this.movieCount = movieCount; }
