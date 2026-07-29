@@ -3,7 +3,7 @@ function handleSingleStarResult(resultData) {
     jQuery("#star_name").text(resultData.name);
 
     //Set dob
-    jQuery("#star_dob").text(resultData.birth_year);
+    jQuery("#star_dob").text(resultData.dob);
 
     // Populate Movie Table
     let tableBodyElement = jQuery("#star_table_movie_body");

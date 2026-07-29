@@ -5,7 +5,7 @@ tmdb_etl.py  —  Fetch movies from the TMDB API and load them into MongoDB
 
 Schema target:
   movies : { _id, title, year, director, price, rating, vote_count, genres[], stars[{id,name}] }
-  stars  : { _id, name, birth_year, movies[{id,title,year}] }
+  stars  : { _id, name, dob, movies[{id,title,year}] }
 
 Setup:
   pip install requests pymongo
@@ -18,10 +18,15 @@ Usage:
   python tmdb_etl.py --pages 20                 # 400 movies
   python tmdb_etl.py --pages 20 --fetch-star-counts   # accurate star ordering (slow)
 
+Star dob note:
+  Every ETL run fetches /person/{id} for each newly-seen star to populate dob
+  (one extra API call per unique actor) — dob is core schema data, not optional.
+
 Star ordering note:
   The schema orders stars by career-movie-count DESC, then name ASC (matching MongoMigration).
   By default this ETL uses TMDB billing order as a fast approximation.
-  Pass --fetch-star-counts to resolve exact career counts (1 extra API call per unique actor).
+  Pass --fetch-star-counts to resolve exact career counts (1 more extra API call
+  per unique actor, on top of the dob fetch above — slow for large imports).
 """
 
 import argparse
@@ -233,10 +238,10 @@ def build_star_docs(movie_docs: list[dict], cast_map: dict) -> list[dict]:
             key=lambda m: (-m["year"], m["title"])
         )
         docs.append({
-            "_id":        sid,
-            "name":       info["name"],
-            "birth_year": info.get("birth_year"),
-            "movies":     movies_sorted,
+            "_id":    sid,
+            "name":   info["name"],
+            "dob":    info.get("dob"),
+            "movies": movies_sorted,
         })
     return docs
 
@@ -267,9 +272,16 @@ def upsert_stars_in_batches(col, star_docs: list[dict]) -> None:
     """
     Upserts star documents.
 
-    For new stars   : inserts name + birth_year via $setOnInsert, adds movie stubs.
-    For existing stars: skips name/birth_year (preserves existing values),
-                        and merges new movie in without duplicating.
+    For new stars     : inserts name via $setOnInsert; dob is $setOnInsert'd as
+                         null only if this run has no dob for the star, so the
+                         field still exists on the doc.
+    For existing stars : name is never overwritten. dob is only ever $set when
+                         this run resolved a real (non-null) value — an already
+                         null dob is never used to clobber a previously-known
+                         one, and a previously-null dob gets filled in as soon
+                         as a later run resolves it (fixes dob being frozen at
+                         null forever).
+    In all cases        : merges new movie stubs in without duplicating.
 
     After all batches, sorts each star's movies[] by year DESC, title ASC using
     $push/$each:[]/$sort
@@ -281,19 +293,16 @@ def upsert_stars_in_batches(col, star_docs: list[dict]) -> None:
     total = 0
     for i in range(0, len(star_docs), BATCH_SIZE):
         batch = star_docs[i : i + BATCH_SIZE]
-        ops = [
-            UpdateOne(
-                {"_id": d["_id"]},
-                {
-                    # Only set name/birth_year on first insert; never overwrite.
-                    "$setOnInsert": {"name": d["name"], "birth_year": d["birth_year"]},
-                    # Add each movie stub only if it isn't already in the array.
-                    "$addToSet": {"movies": {"$each": d["movies"]}},
-                },
-                upsert=True,
-            )
-            for d in batch
-        ]
+        ops = []
+        for d in batch:
+            set_on_insert = {"name": d["name"]}
+            update = {"$addToSet": {"movies": {"$each": d["movies"]}}}
+            if d["dob"]:
+                update["$set"] = {"dob": d["dob"]}
+            else:
+                set_on_insert["dob"] = None
+            update["$setOnInsert"] = set_on_insert
+            ops.append(UpdateOne({"_id": d["_id"]}, update, upsert=True))
         col.bulk_write(ops, ordered=False)
         total += len(batch)
 
@@ -356,7 +365,7 @@ def main():
     # -- Step 2: fetch detail + credits ----------------------------------------
     print(f"\n[Step 2] Fetching movie details + credits …")
     movie_docs: list[dict] = []
-    cast_map: dict[str, dict] = {}   # star_id → {name, birth_year, tmdb_id}
+    cast_map: dict[str, dict] = {}   # star_id → {name, dob, tmdb_id}
     skipped = 0
 
     for i, tid in enumerate(tmdb_ids, 1):
@@ -378,9 +387,9 @@ def main():
             sid = star_id(person)
             if sid not in cast_map:
                 cast_map[sid] = {
-                    "name":       person["name"],
-                    "birth_year": None,
-                    "tmdb_id":    person["id"],
+                    "name":    person["name"],
+                    "dob":     None,
+                    "tmdb_id": person["id"],
                 }
 
         if i % 50 == 0:
@@ -388,32 +397,31 @@ def main():
 
     print(f"  Built {len(movie_docs)} movie docs ({skipped} skipped), {len(cast_map)} unique stars.")
 
-    # -- Step 3 (optional): fetch birth years + career counts ------------------
-    if args.fetch_star_counts:
-        print(f"\n[Step 3] Fetching person details for {len(cast_map)} stars …")
-        career_counts: dict[str, int] = {}
+    # -- Step 3: fetch dob (always) + career counts (opt-in) --------------------
+    print(f"\n[Step 3] Fetching person details for {len(cast_map)} stars …")
+    career_counts: dict[str, int] = {}
 
-        for j, (sid, info) in enumerate(cast_map.items(), 1):
-            try:
-                person  = tmdb_get(f"/person/{info['tmdb_id']}")
+    for j, (sid, info) in enumerate(cast_map.items(), 1):
+        try:
+            person = tmdb_get(f"/person/{info['tmdb_id']}")
+            cast_map[sid]["dob"] = person.get("birthday") or None
+
+            if args.fetch_star_counts:
                 credits = tmdb_get(f"/person/{info['tmdb_id']}/movie_credits")
-
-                birthday = person.get("birthday", "")
-                cast_map[sid]["birth_year"] = (
-                    int(birthday[:4]) if birthday and birthday[:4].isdigit() else None
-                )
                 career_counts[sid] = len(credits.get("cast", []))
-            except Exception as e:
-                print(f"  [warn] person {sid}: {e}", flush=True)
-            time.sleep(REQUEST_DELAY)
-            if j % 100 == 0:
-                print(f"  … {j}/{len(cast_map)} persons fetched", flush=True)
+        except Exception as e:
+            print(f"  [warn] person {sid}: {e}", flush=True)
+        time.sleep(REQUEST_DELAY)
+        if j % 100 == 0:
+            print(f"  … {j}/{len(cast_map)} persons fetched", flush=True)
 
+    if args.fetch_star_counts:
         # Re-sort stars in each movie: career count DESC, name ASC
         for doc in movie_docs:
             doc["stars"].sort(key=lambda s: (-career_counts.get(s["id"], 0), s["name"]))
     else:
-        print("\n[Step 3] Skipped (use --fetch-star-counts for career-count ordering).")
+        print("  (use --fetch-star-counts for accurate career-count ordering; "
+              "using TMDB billing order as an approximation.)")
 
     # -- Step 4: resolve duplicate stars by name -------------------------------
     # Cast credits from TMDB don't include imdb_id, so star_id() falls back to

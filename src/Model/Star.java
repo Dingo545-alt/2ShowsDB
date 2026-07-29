@@ -6,7 +6,7 @@ import java.util.List;
 public class Star {
     private String id;
     private String name;
-    private Integer birthYear;
+    private String dob; // ISO 8601 date string ("YYYY-MM-DD"), null when unknown
     private int movieCount;
     private List<Movie> movies = new ArrayList<>();
 
@@ -16,10 +16,10 @@ public class Star {
         this.id = id;
         this.name = name;
     }
-    public Star(String id, String name, Integer birthYear) {
+    public Star(String id, String name, String dob) {
         this.id = id;
         this.name = name;
-        this.birthYear = birthYear;
+        this.dob = dob;
     }
 
     public String getId() { return id; }
@@ -28,8 +28,8 @@ public class Star {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
-    public Integer getBirthYear() { return birthYear; }
-    public void setBirthYear(Integer birthYear) { this.birthYear = birthYear; }
+    public String getDob() { return dob; }
+    public void setDob(String dob) { this.dob = dob; }
 
     public int getMovieCount() { return movieCount; }
     public void setMovieCount(int movieCount) { this.movieCount = movieCount; }

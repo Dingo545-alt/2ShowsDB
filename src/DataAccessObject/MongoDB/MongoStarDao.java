@@ -32,9 +32,8 @@ public class MongoStarDao implements StarDao {
         star.setId(doc.getString("_id"));
         star.setName(doc.getString("name"));
 
-        // birth_year is stored as an integer; null when not known
-        Integer birthYear = doc.getInteger("birth_year");
-        star.setBirthYear(birthYear);
+        // dob is an ISO 8601 date string ("YYYY-MM-DD"); null when not known
+        star.setDob(doc.getString("dob"));
 
         // Embedded movies array - alr sorted year DESC, title ASC by migration
         List<Document> rawMovies = doc.getList("movies", Document.class);

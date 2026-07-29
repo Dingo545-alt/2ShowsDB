@@ -49,10 +49,10 @@ public class SingleStarServlet extends HttpServlet {
             starJson.addProperty("id",   star.getId());
             starJson.addProperty("name", star.getName());
 
-            if (star.getBirthYear() == null) {
-                starJson.addProperty("birth_year", "N/A");
+            if (star.getDob() == null) {
+                starJson.addProperty("dob", "N/A");
             } else {
-                starJson.addProperty("birth_year", star.getBirthYear());
+                starJson.addProperty("dob", star.getDob());
             }
 
             JsonArray moviesArray = new JsonArray();

@@ -39,16 +39,16 @@ movies
 stars
 ----------------------------------------------------------------
 {
-  "_id":        "nm0000151",
-  "name":       "Tim Robbins",
-  "birth_year": 1958,
+  "_id":  "nm0000151",
+  "name": "Tim Robbins",
+  "dob":  "1958-10-16",
   "movies": [
     { "id": "tt0245429", "title": "Mystic River",             "year": 2003 },
     { "id": "tt0111161", "title": "The Shawshank Redemption", "year": 1994 }
   ]
 }
 
-- birth_year is null when unknown
+- dob is an ISO 8601 date string ("YYYY-MM-DD"); null when unknown
 - movies ordered by year DESC, then title ASC
 
 
