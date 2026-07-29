@@ -32,8 +32,16 @@
 <main class="star-container">
     <a href="movie-list.html" id="back-to-movie-list" class="back-button">← Back to Movie List</a>
     <section class="star-profile">
-        <h1 id="star_name"></h1>
-        <p><strong>Date of Birth:</strong><span id="star_dob"></span></p>
+        <div class="star-layout">
+            <div class="star-photo">
+                <img id="star_photo_image" alt="" hidden>
+                <span id="star_photo_placeholder" class="photo-placeholder" hidden>No photo available</span>
+            </div>
+            <div class="star-content">
+                <h1 id="star_name"></h1>
+                <p><strong>Date of Birth:</strong><span id="star_dob"></span></p>
+            </div>
+        </div>
     </section>
     <section class="star-movies">
         <h2>Filmography</h2>

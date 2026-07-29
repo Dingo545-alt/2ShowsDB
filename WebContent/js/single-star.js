@@ -5,6 +5,16 @@ function handleSingleStarResult(resultData) {
     //Set dob
     jQuery("#star_dob").text(resultData.dob);
 
+    // Photo
+    const photoUrl = resultData.photo ? resultData.photo.sizes.original : null;
+    if (photoUrl) {
+        jQuery("#star_photo_image").attr("src", photoUrl).attr("alt", resultData.name + " photo").prop("hidden", false);
+        jQuery("#star_photo_placeholder").prop("hidden", true);
+    } else {
+        jQuery("#star_photo_image").prop("hidden", true);
+        jQuery("#star_photo_placeholder").prop("hidden", false);
+    }
+
     // Populate Movie Table
     let tableBodyElement = jQuery("#star_table_movie_body");
     resultData.movies.forEach(movie => {

@@ -13,6 +13,47 @@
     border-radius: 8px;
 }
 
+.star-layout {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.star-photo {
+    flex: 0 0 auto;
+    width: 185px;
+}
+
+.star-photo img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+.star-photo .photo-placeholder[hidden] {
+    display: none;
+}
+
+.star-photo .photo-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 260px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #eee;
+    color: #999;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.star-content {
+    flex: 1;
+    min-width: 0;
+}
+
 .star-profile h1 {
     margin: 0;
     font-size: 2.5em;
