@@ -23,7 +23,7 @@ class LogoutServletTest {
         new LogoutServlet().doGet(request, response);
 
         verify(session).invalidate();
-        verify(response).sendRedirect("/2shows/index.html");
+        verify(response).sendRedirect("/2shows/main.html");
     }
 
     @Test
@@ -33,6 +33,6 @@ class LogoutServletTest {
 
         new LogoutServlet().doGet(request, response);
 
-        verify(response).sendRedirect("/2shows/index.html");
+        verify(response).sendRedirect("/2shows/main.html");
     }
 }

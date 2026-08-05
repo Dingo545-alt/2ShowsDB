@@ -170,7 +170,8 @@ buildNumber.properties
 
 # End of https://www.gitignore.io/api/java,maven,eclipse,java-web,intellij
 
-/WebContent/WEB-INF/
+/WebContent/WEB-INF/*
+!/WebContent/WEB-INF/web.xml
 /WebContent/META-INF/
 
 # Secrets / local config - copy config.properties.example to config.properties and fill in real values
