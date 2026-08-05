@@ -4,8 +4,9 @@ tmdb_etl.py  —  Fetch movies from the TMDB API and load them into MongoDB
                  following the moviedb schema in "Mongo Schema readme.txt".
 
 Schema target:
-  movies : { _id, title, year, director, price, rating, vote_count, genres[], stars[{id,name}] }
-  stars  : { _id, name, dob, photo, movies[{id,title,year}] }
+  movies    : { _id, title, year, director, price, rating, vote_count, genres[], stars[{id,name}] }
+  stars     : { _id, name, dob, photo, movies[{id,title,year}] }
+  directors : { _id, name, dob, photo, movies[{id,title,year}] }
 
 Setup:
   pip install requests pymongo
@@ -18,10 +19,10 @@ Usage:
   python tmdb_etl.py --pages 20                 # 400 movies
   python tmdb_etl.py --pages 20 --fetch-star-counts   # accurate star ordering (slow)
 
-Star dob / photo note:
-  Every ETL run fetches /person/{id} for each newly-seen star to populate dob
-  and photo (one extra API call per unique actor, shared by both fields) —
-  dob and photo are core schema data, not optional.
+Star / director dob / photo note:
+  Every ETL run fetches /person/{id} for each newly-seen star or director to
+  populate dob and photo (one extra API call per unique person, shared by
+  both fields) — dob and photo are core schema data, not optional.
 
 Star ordering note:
   The schema orders stars by career-movie-count DESC, then name ASC (matching MongoMigration).
@@ -75,8 +76,8 @@ def movie_id(detail: dict) -> str:
     return detail.get("imdb_id") or f"tmdb:{detail['id']}"
 
 
-def star_id(person: dict) -> str:
-    """IMDb nm-id when available, else tmdb:p<id>."""
+def person_id(person: dict) -> str:
+    """IMDb nm-id when available, else tmdb:p<id>. Used for both cast and crew credits."""
     return person.get("imdb_id") or f"tmdb:p{person['id']}"
 
 
@@ -123,6 +124,32 @@ def fetch_movie_detail(tmdb_id: int) -> dict | None:
         return None
 
 
+def fetch_person_details(person_map: dict, label: str, fetch_career_counts: bool = False) -> dict:
+    """
+    Fetches dob + photo for every TMDB person in person_map (mutated in place),
+    shared by both stars and directors. When fetch_career_counts is set (stars
+    only), also fetches each person's total movie-credit count, returned as
+    {id: count} — used to order movies.stars[] by career count DESC.
+    """
+    career_counts: dict[str, int] = {}
+    total = len(person_map)
+    for j, (pid, info) in enumerate(person_map.items(), 1):
+        try:
+            person = tmdb_get(f"/person/{info['tmdb_id']}")
+            info["dob"] = person.get("birthday") or None
+            info["photo"] = build_photo(person.get("profile_path"))
+
+            if fetch_career_counts:
+                credits = tmdb_get(f"/person/{info['tmdb_id']}/movie_credits")
+                career_counts[pid] = len(credits.get("cast", []))
+        except Exception as e:
+            print(f"  [warn] person {pid}: {e}", flush=True)
+        time.sleep(REQUEST_DELAY)
+        if j % 100 == 0:
+            print(f"  … {j}/{total} {label} fetched", flush=True)
+    return career_counts
+
+
 # -- Document builders ----------------------------------------------
 def build_movie_doc(detail: dict, price: float) -> dict | None:
     title = detail.get("title") or detail.get("original_title")
@@ -153,7 +180,7 @@ def build_movie_doc(detail: dict, price: float) -> dict | None:
     # in main() when --fetch-star-counts is set.
     cast = detail.get("credits", {}).get("cast", [])
     stars = [
-        {"id": star_id(c), "name": c["name"]}
+        {"id": person_id(c), "name": c["name"]}
         for c in sorted(cast, key=lambda c: c.get("order", 999))
     ]
 
@@ -262,6 +289,30 @@ def build_star_docs(movie_docs: list[dict], cast_map: dict) -> list[dict]:
     return docs
 
 
+def build_director_docs(director_map: dict, director_movies: dict) -> list[dict]:
+    """
+    Builds director documents with embedded movie stubs, mirroring build_star_docs.
+    movies[] is sorted year DESC, title ASC. Unlike stars (whose movie list is
+    derived from movie_docs after the fact), director_movies is accumulated
+    directly while walking movie credits in main(), since movie docs only carry
+    the director's name, not their id.
+    """
+    docs = []
+    for did, info in director_map.items():
+        movies_sorted = sorted(
+            director_movies.get(did, []),
+            key=lambda m: (-m["year"], m["title"])
+        )
+        docs.append({
+            "_id":    did,
+            "name":   info["name"],
+            "dob":    info.get("dob"),
+            "photo":  info.get("photo"),
+            "movies": movies_sorted,
+        })
+    return docs
+
+
 # -- MongoDB upsert -------------------------------------------------------------
 def upsert_in_batches(col, docs: list[dict], label: str) -> set:
     """Upserts docs and returns the set of _ids that were newly inserted."""
@@ -284,14 +335,15 @@ def upsert_in_batches(col, docs: list[dict], label: str) -> set:
     return inserted_ids
 
 
-def upsert_stars_in_batches(col, star_docs: list[dict]) -> None:
+def upsert_person_docs_in_batches(col, docs: list[dict], label: str) -> None:
     """
-    Upserts star documents.
+    Upserts star or director documents — anything shaped
+    { _id, name, dob, photo, movies[] }.
 
-    For new stars     : inserts name via $setOnInsert; dob/photo are
+    For new people     : inserts name via $setOnInsert; dob/photo are
                          $setOnInsert'd as null only if this run has no value
-                         for the star, so the fields still exist on the doc.
-    For existing stars : name is never overwritten. dob/photo are only ever
+                         for the person, so the fields still exist on the doc.
+    For existing people : name is never overwritten. dob/photo are only ever
                          $set when this run resolved a real (non-null) value —
                          an already null value is never used to clobber a
                          previously-known one, and a previously-null value
@@ -299,16 +351,16 @@ def upsert_stars_in_batches(col, star_docs: list[dict]) -> None:
                          (fixes dob/photo being frozen at null forever).
     In all cases        : merges new movie stubs in without duplicating.
 
-    After all batches, sorts each star's movies[] by year DESC, title ASC using
-    $push/$each:[]/$sort
+    After all batches, sorts each person's movies[] by year DESC, title ASC
+    using $push/$each:[]/$sort
     """
-    if not star_docs:
-        print("  [stars] Nothing to upsert.")
+    if not docs:
+        print(f"  [{label}] Nothing to upsert.")
         return
 
     total = 0
-    for i in range(0, len(star_docs), BATCH_SIZE):
-        batch = star_docs[i : i + BATCH_SIZE]
+    for i in range(0, len(docs), BATCH_SIZE):
+        batch = docs[i : i + BATCH_SIZE]
         ops = []
         for d in batch:
             set_on_insert = {"name": d["name"]}
@@ -329,15 +381,15 @@ def upsert_stars_in_batches(col, star_docs: list[dict]) -> None:
         col.bulk_write(ops, ordered=False)
         total += len(batch)
 
-    # Sort movies[] for every star touched in this run:
+    # Sort movies[] for every person touched in this run:
     # $push with $each:[] and $sort re-sorts the existing array without adding elements.
-    affected_ids = [d["_id"] for d in star_docs]
+    affected_ids = [d["_id"] for d in docs]
     col.update_many(
         {"_id": {"$in": affected_ids}},
         {"$push": {"movies": {"$each": [], "$sort": {"year": -1, "title": 1}}}},
     )
 
-    print(f"  [stars] Upserted {total} documents (movies[] merged and sorted).")
+    print(f"  [{label}] Upserted {total} documents (movies[] merged and sorted).")
 
 
 def write_inserted_movies_report(movie_docs: list[dict], inserted_ids: set,
@@ -388,7 +440,9 @@ def main():
     # -- Step 2: fetch detail + credits ----------------------------------------
     print(f"\n[Step 2] Fetching movie details + credits …")
     movie_docs: list[dict] = []
-    cast_map: dict[str, dict] = {}   # star_id → {name, dob, photo, tmdb_id}
+    cast_map: dict[str, dict] = {}                              # star_id     → {name, dob, photo, tmdb_id}
+    director_map: dict[str, dict] = {}                          # director_id → {name, dob, photo, tmdb_id}
+    director_movies: dict[str, list[dict]] = defaultdict(list)  # director_id → [movie stub, ...]
     skipped = 0
 
     for i, tid in enumerate(tmdb_ids, 1):
@@ -407,7 +461,7 @@ def main():
         movie_docs.append(doc)
 
         for person in detail.get("credits", {}).get("cast", []):
-            sid = star_id(person)
+            sid = person_id(person)
             if sid not in cast_map:
                 cast_map[sid] = {
                     "name":    person["name"],
@@ -416,29 +470,32 @@ def main():
                     "tmdb_id": person["id"],
                 }
 
+        # doc is non-None only when build_movie_doc found a director in this
+        # same crew list, so director_person is guaranteed to be found again here.
+        crew = detail.get("credits", {}).get("crew", [])
+        director_person = next((c for c in crew if c.get("job") == "Director"), None)
+        if director_person:
+            did = person_id(director_person)
+            if did not in director_map:
+                director_map[did] = {
+                    "name":    director_person["name"],
+                    "dob":     None,
+                    "photo":   None,
+                    "tmdb_id": director_person["id"],
+                }
+            director_movies[did].append({"id": doc["_id"], "title": doc["title"], "year": doc["year"]})
+
         if i % 50 == 0:
             print(f"  … {i}/{len(tmdb_ids)} processed", flush=True)
 
-    print(f"  Built {len(movie_docs)} movie docs ({skipped} skipped), {len(cast_map)} unique stars.")
+    print(f"  Built {len(movie_docs)} movie docs ({skipped} skipped), "
+          f"{len(cast_map)} unique stars, {len(director_map)} unique directors.")
 
-    # -- Step 3: fetch dob (always) + career counts (opt-in) --------------------
-    print(f"\n[Step 3] Fetching person details for {len(cast_map)} stars …")
-    career_counts: dict[str, int] = {}
-
-    for j, (sid, info) in enumerate(cast_map.items(), 1):
-        try:
-            person = tmdb_get(f"/person/{info['tmdb_id']}")
-            cast_map[sid]["dob"] = person.get("birthday") or None
-            cast_map[sid]["photo"] = build_photo(person.get("profile_path"))
-
-            if args.fetch_star_counts:
-                credits = tmdb_get(f"/person/{info['tmdb_id']}/movie_credits")
-                career_counts[sid] = len(credits.get("cast", []))
-        except Exception as e:
-            print(f"  [warn] person {sid}: {e}", flush=True)
-        time.sleep(REQUEST_DELAY)
-        if j % 100 == 0:
-            print(f"  … {j}/{len(cast_map)} persons fetched", flush=True)
+    # -- Step 3: fetch dob/photo (always) + career counts (stars, opt-in) -------
+    print(f"\n[Step 3] Fetching person details for {len(cast_map)} stars "
+          f"and {len(director_map)} directors …")
+    career_counts = fetch_person_details(cast_map, "stars", fetch_career_counts=args.fetch_star_counts)
+    fetch_person_details(director_map, "directors")
 
     if args.fetch_star_counts:
         # Re-sort stars in each movie: career count DESC, name ASC
@@ -449,10 +506,15 @@ def main():
               "using TMDB billing order as an approximation.)")
 
     # -- Step 4: resolve duplicate stars by name -------------------------------
-    # Cast credits from TMDB don't include imdb_id, so star_id() falls back to
+    # Cast credits from TMDB don't include imdb_id, so person_id() falls back to
     # tmdb:p<id>.  Query the DB by name to remap those to existing nm- IDs before
     # building any documents, so both the stars collection and the embedded star
     # stubs in movie docs stay consistent.
+    #
+    # Directors skip this step: the directors collection has no pre-existing
+    # legacy dataset to reconcile against (unlike stars, which were migrated
+    # from the old MySQL pipeline before TMDB import existed), so a director's
+    # tmdb:p<id> is already stable and consistent across ETL runs.
     print(f"\n[Step 4] Connecting to MongoDB and resolving star IDs by name …")
     client = MongoClient(MONGO_URI)
     db = client[MONGO_DB]
@@ -461,15 +523,17 @@ def main():
     if remap:
         apply_id_remap(remap, cast_map, movie_docs)
 
-    # -- Step 5: build star documents ------------------------------------------
-    print("\n[Step 5] Building star documents …")
+    # -- Step 5: build star + director documents -------------------------------
+    print("\n[Step 5] Building star and director documents …")
     star_docs = build_star_docs(movie_docs, cast_map)
-    print(f"  Built {len(star_docs)} star documents.")
+    director_docs = build_director_docs(director_map, director_movies)
+    print(f"  Built {len(star_docs)} star documents, {len(director_docs)} director documents.")
 
     # -- Step 6: upsert into MongoDB -------------------------------------------
     print(f"\n[Step 6] Writing to MongoDB ({MONGO_URI} / {MONGO_DB}) …")
     inserted_movie_ids = upsert_in_batches(db["movies"], movie_docs, "movies")
-    upsert_stars_in_batches(db["stars"], star_docs)
+    upsert_person_docs_in_batches(db["stars"], star_docs, "stars")
+    upsert_person_docs_in_batches(db["directors"], director_docs, "directors")
     client.close()
 
     write_inserted_movies_report(movie_docs, inserted_movie_ids)

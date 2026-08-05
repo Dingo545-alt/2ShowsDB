@@ -1,5 +1,5 @@
 moviedb -- MongoDB Schema
-Five collections: movies, stars, customers, sales, employees
+Six collections: movies, stars, directors, customers, sales, employees
 ================================================================
 
 
@@ -62,6 +62,31 @@ stars
   for a full-size view) so the app never has to know TMDB's image base URL /
   size scheme
 - movies ordered by year DESC, then title ASC
+
+
+directors
+----------------------------------------------------------------
+{
+  "_id":  "nm0000399",
+  "name": "Frank Darabont",
+  "dob":  "1959-01-28",
+  "photo": {
+    "path": "/lNqRT7dfNoLuTgOG3JsPSbYbUnV.jpg",
+    "sizes": {
+      "w185":     "https://image.tmdb.org/t/p/w185/lNqRT7dfNoLuTgOG3JsPSbYbUnV.jpg",
+      "original": "https://image.tmdb.org/t/p/original/lNqRT7dfNoLuTgOG3JsPSbYbUnV.jpg"
+    }
+  },
+  "movies": [
+    { "id": "tt0111161", "title": "The Shawshank Redemption", "year": 1994 }
+  ]
+}
+
+- structurally identical to stars (same dob/photo/movies conventions above);
+  a separate collection because a person can be a star, a director, or both,
+  each with their own page
+- movies.director on the movie document itself stays a plain name string —
+  it does not reference directors._id
 
 
 customers
