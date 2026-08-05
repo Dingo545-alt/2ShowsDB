@@ -177,5 +177,3 @@ buildNumber.properties
 config.properties
 .env
 *.env
-
-/legacy/
