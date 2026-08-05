@@ -178,4 +178,4 @@ config.properties
 .env
 *.env
 
-/archive/
+/legacy/
