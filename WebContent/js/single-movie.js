@@ -7,7 +7,13 @@ function handleSingleMovieResults(resultData) {
             ? "N/A"
             : resultData.rating
     );
-    jQuery("#movie_director").text(resultData.director);
+    if (resultData.directorId) {
+        jQuery("#movie_director").html(
+            `<a href="single-director.html?id=${resultData.directorId}">${resultData.director}</a>`
+        );
+    } else {
+        jQuery("#movie_director").text(resultData.director);
+    }
 
     // Poster
     const posterUrl = resultData.poster ? resultData.poster.original : null;
