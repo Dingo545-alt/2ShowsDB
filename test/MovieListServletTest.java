@@ -61,6 +61,7 @@ class MovieListServletTest {
         summary.setMovieTitle("Sample Movie");
         summary.setMovieYear("2020");
         summary.setMovieDirector("Some Director");
+        summary.setMovieDirectorId("nm1234");
         summary.setMovieRating("8.5");
         summary.setPosterThumbnailUrl("https://img/w342/x.jpg");
         summary.setGenres(List.of("Drama", "Comedy"));
@@ -81,6 +82,7 @@ class MovieListServletTest {
         JsonObject movieObj = json.getAsJsonArray("movies").get(0).getAsJsonObject();
         assertEquals("tt1", movieObj.get("movie_id").getAsString());
         assertEquals("Sample Movie", movieObj.get("movie_title").getAsString());
+        assertEquals("nm1234", movieObj.get("movie_director_id").getAsString());
         assertEquals(2, movieObj.getAsJsonArray("genres").size());
         assertEquals("nm1", movieObj.getAsJsonArray("stars").get(0).getAsJsonObject().get("star_id").getAsString());
     }

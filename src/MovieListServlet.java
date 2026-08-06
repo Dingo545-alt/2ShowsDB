@@ -91,7 +91,8 @@ public class MovieListServlet extends HttpServlet {
                 movieObj.addProperty("movie_id",       movie.getMovieId());
                 movieObj.addProperty("movie_title",    movie.getMovieTitle());
                 movieObj.addProperty("movie_year",     movie.getMovieYear());
-                movieObj.addProperty("movie_director", movie.getMovieDirector());
+                movieObj.addProperty("movie_director",    movie.getMovieDirector());
+                movieObj.addProperty("movie_director_id", movie.getMovieDirectorId());
                 movieObj.addProperty("movie_rating",   movie.getMovieRating());
                 movieObj.addProperty("movie_poster_thumbnail_url", movie.getPosterThumbnailUrl());
 

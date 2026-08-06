@@ -20,6 +20,7 @@ public class MovieListResult {
         private String       movieTitle;
         private String       movieYear;
         private String       movieDirector;
+        private String       movieDirectorId;
         private String       movieRating;
         private List<String> genres;
         private List<StarSummary> stars;
@@ -38,6 +39,9 @@ public class MovieListResult {
 
         public String getMovieDirector()        { return movieDirector; }
         public void   setMovieDirector(String v){ this.movieDirector = v; }
+
+        public String getMovieDirectorId()        { return movieDirectorId; }
+        public void   setMovieDirectorId(String v){ this.movieDirectorId = v; }
 
         public String getMovieRating()        { return movieRating; }
         public void   setMovieRating(String v){ this.movieRating = v; }

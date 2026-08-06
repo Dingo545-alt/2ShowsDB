@@ -203,6 +203,10 @@ function populateMovieTableWithResults(movieArray, state) {
             ? `<img src="${movie.movie_poster_thumbnail_url}" alt="${movie.movie_title} poster" class="poster-thumbnail">`
             : `<span class="poster-placeholder">N/A</span>`;
 
+        const directorHTML = movie.movie_director_id
+            ? `<a href="single-director.html?id=${movie.movie_director_id}">${movie.movie_director}</a>`
+            : movie.movie_director;
+
         const rowHTML = `
             <tr>
                 <td>${rowNumberOffset + indexWithinPage + 1}</td>
@@ -213,7 +217,7 @@ function populateMovieTableWithResults(movieArray, state) {
                     </a>
                 </td>
                 <td>${movie.movie_year}</td>
-                <td>${movie.movie_director}</td>
+                <td>${directorHTML}</td>
                 <td>${ratingDisplay}</td>
                 <td>${(movie.genres || []).map(g => `<a href="movie-list.html?genre=${encodeURIComponent(g)}">${g}</a>`).join(", ")}</td>
                 <td>${starsHTML}</td>
