@@ -54,4 +54,11 @@ public class DaoFactory {
         }
         throw new IllegalArgumentException("Database type not supported");
     }
+
+    public static DirectorDao getDirectorDao() {
+        if (DATABASE_TYPE.equals("MONGODB")) {
+            return new MongoDirectorDao();
+        }
+        throw new IllegalArgumentException("Database type not supported");
+    }
 }
