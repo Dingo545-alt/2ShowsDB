@@ -41,6 +41,7 @@ public class SingleMovieServlet extends HttpServlet{
             responseJson.addProperty("title", movie.getTitle());
             responseJson.addProperty("year", movie.getYear());
             responseJson.addProperty("director", movie.getDirector());
+            responseJson.addProperty("directorId", movie.getDirectorId());
 
             if (movie.getRating() == null) {
                 responseJson.add("rating", JsonNull.INSTANCE);

@@ -57,6 +57,7 @@ class SingleMovieServletTest {
         movie.setTitle("The Shawshank Redemption");
         movie.setYear(1994);
         movie.setDirector("Frank Darabont");
+        movie.setDirectorId("nm0000399");
         movie.setRating(9.3f);
         movie.setPoster(new Poster("/poster.jpg", "https://img/w342/poster.jpg", "https://img/original/poster.jpg"));
         movie.setGenres(List.of(new Genre(1, "Drama")));
@@ -76,6 +77,7 @@ class SingleMovieServletTest {
         assertEquals("The Shawshank Redemption", json.get("title").getAsString());
         assertEquals(1994, json.get("year").getAsInt());
         assertEquals("Frank Darabont", json.get("director").getAsString());
+        assertEquals("nm0000399", json.get("directorId").getAsString());
         assertEquals(9.3f, json.get("rating").getAsFloat());
         assertEquals("/poster.jpg", json.getAsJsonObject("poster").get("path").getAsString());
         assertEquals(1, json.getAsJsonArray("genres").size());
