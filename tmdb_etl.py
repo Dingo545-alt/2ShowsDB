@@ -4,7 +4,7 @@ tmdb_etl.py  —  Fetch movies from the TMDB API and load them into MongoDB
                  following the moviedb schema in "Mongo Schema readme.txt".
 
 Schema target:
-  movies    : { _id, title, year, director, price, rating, vote_count, genres[], stars[{id,name}] }
+  movies    : { _id, title, year, director{id,name}, price, rating, vote_count, genres[], stars[{id,name}] }
   stars     : { _id, name, dob, photo, movies[{id,title,year}] }
   directors : { _id, name, dob, photo, movies[{id,title,year}] }
 
@@ -162,9 +162,10 @@ def build_movie_doc(detail: dict, price: float) -> dict | None:
         return None
 
     crew = detail.get("credits", {}).get("crew", [])
-    director = next((c["name"] for c in crew if c.get("job") == "Director"), None)
-    if not director:
+    director_person = next((c for c in crew if c.get("job") == "Director"), None)
+    if not director_person:
         return None
+    director = {"id": person_id(director_person), "name": director_person["name"]}
 
     # Genres: alphabetically sorted (matches MongoMigration ORDER BY g.name)
     genres = sorted(g["name"] for g in detail.get("genres", []))
@@ -404,7 +405,7 @@ def write_inserted_movies_report(movie_docs: list[dict], inserted_ids: set,
             f.write(f"ID       : {doc['_id']}\n")
             f.write(f"Title    : {doc['title']}\n")
             f.write(f"Year     : {doc['year']}\n")
-            f.write(f"Director : {doc['director']}\n")
+            f.write(f"Director : {doc['director']['name']}\n")
             f.write(f"Genres   : {', '.join(doc['genres']) or 'N/A'}\n")
             f.write(f"Rating   : {rating_str}\n")
             f.write(f"Price    : ${doc['price']:.2f}\n")
