@@ -9,7 +9,7 @@ movies
   "_id":        "tt0111161",
   "title":      "The Shawshank Redemption",
   "year":       1994,
-  "director":   "Frank Darabont",
+  "director":   { "id": "nm0000399", "name": "Frank Darabont" },
   "price":      14.99,
   "rating":     9.3,
   "vote_count": 2900000,
@@ -30,6 +30,8 @@ movies
 - rating and vote_count are null for unrated movies
 - genres is alphabetically sorted
 - stars ordered by career movie count DESC, then name ASC
+- director.id follows the same nm-id-or-tmdb:p<id> scheme as stars[].id / directors._id,
+  and is the join key to the directors collection below
 - poster is null when the source has no poster image; path is the TMDB-relative
   path (kept for reference/debugging), sizes holds pre-resolved full URLs for
   the sizes the app actually uses (w342 for list thumbnails, original for the
@@ -85,8 +87,7 @@ directors
 - structurally identical to stars (same dob/photo/movies conventions above);
   a separate collection because a person can be a star, a director, or both,
   each with their own page
-- movies.director on the movie document itself stays a plain name string —
-  it does not reference directors._id
+- movies.director.id references this collection's _id
 
 
 customers
