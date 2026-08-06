@@ -37,7 +37,7 @@ public class MongoMovieDao implements MovieDao {
         movie.setId(doc.getString("_id"));
         movie.setTitle(doc.getString("title"));
         movie.setYear(doc.getInteger("year"));
-        movie.setDirector(doc.getString("director"));
+        applyDirector(doc.get("director"), movie);
         movie.setPrice(doc.getDouble("price"));
 
         Double ratingVal = doc.getDouble("rating");
@@ -93,5 +93,20 @@ public class MongoMovieDao implements MovieDao {
         }
 
         return movie;
+    }
+
+    /**
+     * director is normally a {id, name} sub-document. Docs not yet re-run through the
+     * TMDB ETL since the director-linking change may still have the older plain-string
+     * shape, so fall back to treating it as a name with no id rather than failing.
+     */
+    private void applyDirector(Object directorField, Movie movie) {
+        if (directorField instanceof Document) {
+            Document directorDoc = (Document) directorField;
+            movie.setDirectorId(directorDoc.getString("id"));
+            movie.setDirector(directorDoc.getString("name"));
+        } else if (directorField instanceof String) {
+            movie.setDirector((String) directorField);
+        }
     }
 }

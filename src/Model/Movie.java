@@ -8,6 +8,7 @@ public class Movie {
     private String title;
     private int year;
     private String director;
+    private String directorId;
     private double price;
     private Float rating;
     private int voteCount;
@@ -46,6 +47,9 @@ public class Movie {
 
     public String getDirector() { return director; }
     public void setDirector(String director) { this.director = director; }
+
+    public String getDirectorId() { return directorId; }
+    public void setDirectorId(String directorId) { this.directorId = directorId; }
 
     public double getPrice() { return price; }
     public void setPrice(double price) { this.price = price; }

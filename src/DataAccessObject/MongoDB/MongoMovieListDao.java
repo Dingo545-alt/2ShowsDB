@@ -95,7 +95,7 @@ public class MongoMovieListDao implements MovieListDao {
             } catch (NumberFormatException ignored) {}
         }
         if (p.getSearchDirector() != null && !p.getSearchDirector().isEmpty()) {
-            conditions.add(Filters.regex("director",
+            conditions.add(Filters.regex("director.name",
                     Pattern.quote(p.getSearchDirector()), "i"));
         }
         if (p.getSearchStar() != null && !p.getSearchStar().isEmpty()) {
@@ -168,7 +168,15 @@ public class MongoMovieListDao implements MovieListDao {
         s.setMovieId(doc.getString("_id"));
         s.setMovieTitle(doc.getString("title"));
         s.setMovieYear(String.valueOf(doc.getInteger("year", 0)));
-        s.setMovieDirector(doc.getString("director"));
+
+        Object directorField = doc.get("director");
+        if (directorField instanceof Document) {
+            Document directorDoc = (Document) directorField;
+            s.setMovieDirectorId(directorDoc.getString("id"));
+            s.setMovieDirector(directorDoc.getString("name"));
+        } else if (directorField instanceof String) {
+            s.setMovieDirector((String) directorField);
+        }
 
         Double rating = doc.getDouble("rating");
         s.setMovieRating(rating != null ? String.valueOf(rating) : "N/A");
