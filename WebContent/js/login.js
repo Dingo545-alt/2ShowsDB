@@ -17,7 +17,6 @@ jQuery(document).ready(function() {
                   dataType: "json",
                   success: function(data) {
                       window.location.href = "main.html";
-                      console.log(data.type);
                   },
                   error: function(xhr) {
                       const data = JSON.parse(xhr.responseText);
