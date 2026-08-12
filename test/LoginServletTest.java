@@ -1,7 +1,6 @@
 import DataAccessObject.DaoFactory;
 import DataAccessObject.Interfaces.UserDao;
-import Model.Customer;
-import Model.Employee;
+import Model.User;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import jakarta.servlet.http.HttpServletRequest;
@@ -76,78 +75,53 @@ class LoginServletTest {
     }
 
     @Test
-    void logsInEmployeeWithCorrectPassword() throws Exception {
-        when(request.getParameter("email")).thenReturn("boss@2shows.com");
-        when(userDao.getPasswordForEmployee("boss@2shows.com")).thenReturn(PASSWORD_HASH);
-        Employee employee = new Employee("boss@2shows.com", PASSWORD_HASH, "The Boss");
-        when(userDao.getEmployeeByEmail("boss@2shows.com")).thenReturn(employee);
+    void logsInUserWithCorrectPassword() throws Exception {
+        when(request.getParameter("username")).thenReturn("jdoe");
+        when(userDao.getPasswordForUsername("jdoe")).thenReturn(PASSWORD_HASH);
+        User user = new User("jdoe", PASSWORD_HASH);
+        when(userDao.getUserByUsername("jdoe")).thenReturn(user);
 
         new LoginServlet().doPost(request, response);
 
         verify(response).setStatus(HttpServletResponse.SC_OK);
-        verify(session).setAttribute("employee", employee);
+        verify(session).setAttribute("user", user);
         JsonObject json = JsonParser.parseString(responseBody.toString()).getAsJsonObject();
         assertEquals("success", json.get("status").getAsString());
-        assertEquals("employee", json.get("type").getAsString());
-    }
-
-    @Test
-    void fallsBackToCustomerWhenNotAnEmployee() throws Exception {
-        when(request.getParameter("email")).thenReturn("customer@example.com");
-        when(userDao.getPasswordForEmployee("customer@example.com")).thenReturn(null);
-        when(userDao.getPasswordForCustomer("customer@example.com")).thenReturn(PASSWORD_HASH);
-        Customer customer = new Customer(1, "Jane", "Doe", "123 Main St",
-                "customer@example.com", PASSWORD_HASH, null);
-        when(userDao.getCustomerByEmail("customer@example.com")).thenReturn(customer);
-
-        new LoginServlet().doPost(request, response);
-
-        verify(response).setStatus(HttpServletResponse.SC_OK);
-        verify(session).setAttribute("customer", customer);
-        JsonObject json = JsonParser.parseString(responseBody.toString()).getAsJsonObject();
-        assertEquals("customer", json.get("type").getAsString());
     }
 
     @Test
     void rejectsWrongPassword() throws Exception {
-        when(request.getParameter("email")).thenReturn("customer@example.com");
+        when(request.getParameter("username")).thenReturn("jdoe");
         when(request.getParameter("password")).thenReturn("totally-wrong-password");
-        when(userDao.getPasswordForEmployee("customer@example.com")).thenReturn(null);
-        when(userDao.getPasswordForCustomer("customer@example.com")).thenReturn(PASSWORD_HASH);
+        when(userDao.getPasswordForUsername("jdoe")).thenReturn(PASSWORD_HASH);
 
         new LoginServlet().doPost(request, response);
 
         verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         JsonObject json = JsonParser.parseString(responseBody.toString()).getAsJsonObject();
         assertEquals("error", json.get("status").getAsString());
-        assertEquals("Invalid email or password", json.get("message").getAsString());
+        assertEquals("Invalid username or password", json.get("message").getAsString());
         verify(session, never()).setAttribute(anyString(), any());
     }
 
-    /**
-     * Documents an existing bug in LoginServlet: the "Invalid email or password" branch is
-     * nested inside {@code if (customerPasswordHash != null)}, so when the email matches
-     * neither an employee nor a customer, that branch is skipped entirely. No status is set
-     * (the mock never records a setStatus call) and the response body is an empty JSON object,
-     * rather than the 401 + error message a caller would reasonably expect.
-     */
     @Test
-    void unknownEmailFallsThroughWithoutSettingErrorResponse() throws Exception {
-        when(request.getParameter("email")).thenReturn("nobody@example.com");
-        when(userDao.getPasswordForEmployee("nobody@example.com")).thenReturn(null);
-        when(userDao.getPasswordForCustomer("nobody@example.com")).thenReturn(null);
+    void rejectsUnknownUsername() throws Exception {
+        when(request.getParameter("username")).thenReturn("nobody");
+        when(userDao.getPasswordForUsername("nobody")).thenReturn(null);
 
         new LoginServlet().doPost(request, response);
 
-        verify(response, never()).setStatus(anyInt());
+        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         JsonObject json = JsonParser.parseString(responseBody.toString()).getAsJsonObject();
-        assertFalse(json.has("status"));
+        assertEquals("error", json.get("status").getAsString());
+        assertEquals("Invalid username or password", json.get("message").getAsString());
+        verify(session, never()).setAttribute(anyString(), any());
     }
 
     @Test
     void daoExceptionYields500() throws Exception {
-        when(request.getParameter("email")).thenReturn("customer@example.com");
-        when(userDao.getPasswordForEmployee("customer@example.com")).thenThrow(new RuntimeException("db down"));
+        when(request.getParameter("username")).thenReturn("jdoe");
+        when(userDao.getPasswordForUsername("jdoe")).thenThrow(new RuntimeException("db down"));
 
         new LoginServlet().doPost(request, response);
 
