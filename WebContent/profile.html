@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Profile</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/profile.css">
+</head>
+<body>
+<header class="main-navbar">
+    <div class="navbar-content">
+        <a href="main.html" class="logo">2Shows</a>
+    </div>
+    <form class="navbar-search" action="movie-list.html" method="GET">
+        <div style="position:relative; display:flex; gap:6px; width:100%;">
+            <input type="search"
+                   id="navbar-search-input"
+                   name="fulltext"
+                   placeholder="Search movies…"
+                   autocomplete="off">
+            <button type="button" id="navbar-search-button">Search</button>
+            <ul id="navbar-autocomplete-dropdown" class="autocomplete-dropdown" hidden></ul>
+        </div>
+    </form>
+    <nav class="navbar-links">
+        <a href="movie-list.html">Movies</a>
+        <a href="login.html" class="login-link" hidden>Log In</a>
+        <a href="profile.html" class="profile-link" hidden>Profile</a>
+        <a href="api/logout" class="logout-link" hidden>Logout</a>
+    </nav>
+</header>
+
+<main class="profile-container">
+    <div id="profile-logged-out" class="profile-gate" hidden>
+        <p>You need to be logged in to view your profile. <a href="login.html">Log In</a></p>
+    </div>
+
+    <div id="profile-content" hidden>
+        <div class="profile-header">
+            <h1><span id="profile-username"></span>'s Movies</h1>
+        </div>
+
+        <section class="favorites-section">
+            <h2>Favorite Movies</h2>
+            <div class="favorites-grid">
+                <div class="favorite-slot empty-slot">
+                    <span class="add-icon">+</span>
+                    <span class="slot-label">Add Favorite</span>
+                </div>
+                <div class="favorite-slot empty-slot">
+                    <span class="add-icon">+</span>
+                    <span class="slot-label">Add Favorite</span>
+                </div>
+                <div class="favorite-slot empty-slot">
+                    <span class="add-icon">+</span>
+                    <span class="slot-label">Add Favorite</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="watch-lists-section">
+            <div class="watch-list-column">
+                <h2>Plan to Watch</h2>
+                <div class="watch-list-items">
+                    <p class="empty-state">No movies yet</p>
+                </div>
+            </div>
+            <div class="watch-list-column">
+                <h2>Watched</h2>
+                <div class="watch-list-items">
+                    <p class="empty-state">No movies yet</p>
+                </div>
+            </div>
+            <div class="watch-list-column">
+                <h2>Watching</h2>
+                <div class="watch-list-items">
+                    <p class="empty-state">No movies yet</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<!-- Load jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/navbar-search.js"></script>
+<script src="js/navbar-auth.js"></script>
+</body>
+</html>

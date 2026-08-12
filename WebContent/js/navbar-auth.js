@@ -4,6 +4,7 @@
 jQuery(document).ready(function () {
     const $loginLink = jQuery(".login-link");
     const $logoutLink = jQuery(".logout-link");
+    const $profileLink = jQuery(".profile-link");
     if (!$loginLink.length && !$logoutLink.length) return; // navbar not present on this page
 
     jQuery.ajax({
@@ -13,6 +14,7 @@ jQuery(document).ready(function () {
         success: function (data) {
             $loginLink.prop("hidden", !!data.loggedIn);
             $logoutLink.prop("hidden", !data.loggedIn);
+            $profileLink.prop("hidden", !data.loggedIn);
         }
     });
 });
