@@ -1,12 +1,12 @@
 package DataAccessObject.Interfaces;
 
-import Model.Customer;
-import Model.Employee;
+import Model.User;
 
 public interface UserDao {
-    String getPasswordForCustomer(String email);
-    String getPasswordForEmployee(String email);
+    /** Returns false without creating anything if the username is already taken. */
+    boolean createUser(User user);
 
-    Customer getCustomerByEmail(String email);
-    Employee getEmployeeByEmail(String email);
+    String getPasswordForUsername(String username);
+
+    User getUserByUsername(String username);
 }
