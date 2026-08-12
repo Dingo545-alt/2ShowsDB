@@ -21,8 +21,7 @@ public class SessionStatusServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         HttpSession session = request.getSession(false);
-        boolean loggedIn = session != null &&
-                (session.getAttribute("customer") != null || session.getAttribute("employee") != null);
+        boolean loggedIn = session != null && session.getAttribute("user") != null;
 
         JsonObject responseJson = new JsonObject();
         responseJson.addProperty("loggedIn", loggedIn);
