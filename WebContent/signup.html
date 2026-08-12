@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="js/signup.js"></script>
+</head>
+
+<header class="main-navbar">
+    <div class="navbar-content">
+        <a href="main.html" class="logo">2Shows</a>
+    </div>
+</header>
+
+<body>
+    <div class="login-container">
+        <h2 id="login-title">Sign Up</h2>
+        <h4 id="signup-error-message"></h4>
+        <form action="/api/signup" method="POST" id="signup-form">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Create Account</button>
+        </form>
+        <p>Already have an account? <a href="login.html">Log in</a></p>
+    </div>
+</body>
+</html>
