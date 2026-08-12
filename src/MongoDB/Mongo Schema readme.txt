@@ -94,7 +94,21 @@ users
 ----------------------------------------------------------------
 {
   "_id":      "jdoe",
-  "password": "1234567890encryptedHash..."
+  "password": "1234567890encryptedHash...",
+  "favorites": [
+    {
+      "id":    "tt0111161",
+      "title": "The Shawshank Redemption",
+      "year":  1994,
+      "poster": {
+        "path": "/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
+        "sizes": {
+          "w342":     "https://image.tmdb.org/t/p/w342/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
+          "original": "https://image.tmdb.org/t/p/original/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg"
+        }
+      }
+    }
+  ]
 }
 
 - _id is the username; Mongo's default unique index on _id is what enforces
@@ -102,6 +116,11 @@ users
 - password is a jasypt StrongPasswordEncryptor hash, never plaintext
 - replaces the old two-role customers/employees login (see git history) with
   a single account type
+- favorites embeds a small denormalized snapshot of each movie (id/title/year,
+  same convention as stars/directors.movies above), plus poster so the profile
+  page can render a thumbnail without a second lookup; capped at 3 entries,
+  enforced in MongoUserDao.addFavorite rather than in Mongo itself
+- favorites is absent/null on users that haven't favorited anything yet
 
 
 sales
