@@ -44,8 +44,7 @@ class SessionStatusServletTest {
     @Test
     void reportsLoggedOutWhenSessionHasNoUser() throws Exception {
         when(request.getSession(false)).thenReturn(session);
-        when(session.getAttribute("customer")).thenReturn(null);
-        when(session.getAttribute("employee")).thenReturn(null);
+        when(session.getAttribute("user")).thenReturn(null);
 
         new SessionStatusServlet().doGet(request, response);
 
@@ -54,21 +53,9 @@ class SessionStatusServletTest {
     }
 
     @Test
-    void reportsLoggedInForCustomerSession() throws Exception {
+    void reportsLoggedInForActiveUserSession() throws Exception {
         when(request.getSession(false)).thenReturn(session);
-        when(session.getAttribute("customer")).thenReturn(new Object());
-
-        new SessionStatusServlet().doGet(request, response);
-
-        JsonObject json = JsonParser.parseString(responseBody.toString()).getAsJsonObject();
-        assertTrue(json.get("loggedIn").getAsBoolean());
-    }
-
-    @Test
-    void reportsLoggedInForEmployeeSession() throws Exception {
-        when(request.getSession(false)).thenReturn(session);
-        when(session.getAttribute("customer")).thenReturn(null);
-        when(session.getAttribute("employee")).thenReturn(new Object());
+        when(session.getAttribute("user")).thenReturn(new Object());
 
         new SessionStatusServlet().doGet(request, response);
 
