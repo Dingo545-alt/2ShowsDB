@@ -1,3 +1,4 @@
+import Model.User;
 import com.google.gson.JsonObject;
 
 import jakarta.servlet.annotation.WebServlet;
@@ -21,10 +22,13 @@ public class SessionStatusServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         HttpSession session = request.getSession(false);
-        boolean loggedIn = session != null && session.getAttribute("user") != null;
+        User user = session != null ? (User) session.getAttribute("user") : null;
 
         JsonObject responseJson = new JsonObject();
-        responseJson.addProperty("loggedIn", loggedIn);
+        responseJson.addProperty("loggedIn", user != null);
+        if (user != null) {
+            responseJson.addProperty("username", user.getUsername());
+        }
 
         PrintWriter out = response.getWriter();
         out.write(responseJson.toString());

@@ -1,3 +1,4 @@
+import Model.User;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -53,13 +55,14 @@ class SessionStatusServletTest {
     }
 
     @Test
-    void reportsLoggedInForActiveUserSession() throws Exception {
+    void reportsLoggedInWithUsernameForActiveUserSession() throws Exception {
         when(request.getSession(false)).thenReturn(session);
-        when(session.getAttribute("user")).thenReturn(new Object());
+        when(session.getAttribute("user")).thenReturn(new User("jdoe", "hash"));
 
         new SessionStatusServlet().doGet(request, response);
 
         JsonObject json = JsonParser.parseString(responseBody.toString()).getAsJsonObject();
         assertTrue(json.get("loggedIn").getAsBoolean());
+        assertEquals("jdoe", json.get("username").getAsString());
     }
 }
