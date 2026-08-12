@@ -1,5 +1,5 @@
 moviedb -- MongoDB Schema
-Six collections: movies, stars, directors, customers, sales, employees
+Five collections: movies, stars, directors, users, sales
 ================================================================
 
 
@@ -90,22 +90,18 @@ directors
 - movies.director.id references this collection's _id
 
 
-customers
+users
 ----------------------------------------------------------------
 {
-  "_id":        1,
-  "first_name": "Jane",
-  "last_name":  "Doe",
-  "email":      "jane@example.com",
-  "password":   "1234567890encryptedHash...",
-  "address":    "123 Main St, Los Angeles, CA",
-  "credit_card": {
-    "id":         "4111111111111111",
-    "first_name": "Jane",
-    "last_name":  "Doe",
-    "expiration": "2027-06-30"
-  }
+  "_id":      "jdoe",
+  "password": "1234567890encryptedHash..."
 }
+
+- _id is the username; Mongo's default unique index on _id is what enforces
+  username uniqueness, so no separate index is needed
+- password is a jasypt StrongPasswordEncryptor hash, never plaintext
+- replaces the old two-role customers/employees login (see git history) with
+  a single account type
 
 
 sales
@@ -119,15 +115,8 @@ sales
   "price_at_sale": 14.99
 }
 
-- customer_id references customers._id
-- movie_id     references movies._id
+- movie_id references movies._id
 - price_at_sale is a snapshot of the price at time of purchase
-
-
-employees
-----------------------------------------------------------------
-{
-  "_id":      "admin@example.com",
-  "password": "1234567890encryptedHash...",
-  "fullname": "Admin User"
-}
+- customer_id was a join key into the now-removed customers collection;
+  this collection is a leftover from the removed purchasing feature and
+  is not written or read by any live code
