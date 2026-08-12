@@ -143,3 +143,26 @@
     background-color: #d0dcee;
     color: #1a3a6e;
 }
+
+/* ---- Favorite button (shared: single-movie page + profile page) ---- */
+.favorite-button {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 6px 10px;
+    font-size: 0.9em;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.favorite-button:hover:not(:disabled) {
+    background-color: #f0f0f0;
+}
+
+.favorite-button:disabled {
+    cursor: default;
+    color: #1a3a6e;
+    border-color: #1a3a6e;
+}

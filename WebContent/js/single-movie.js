@@ -39,6 +39,50 @@ function handleSingleMovieResults(resultData) {
     jQuery("#movie_stars").html(starsHTML);
 }
 
+function markFavoriteButtonAsFavorited() {
+    jQuery("#favorite-button")
+        .text("★ Favorited")
+        .prop("disabled", true);
+}
+
+function initFavoriteButton(movieId) {
+    jQuery.ajax({
+        dataType: "json",
+        method: "GET",
+        url: "api/session-status",
+        success: (sessionData) => {
+            if (!sessionData.loggedIn) return;
+
+            jQuery("#favorite-button").prop("hidden", false);
+
+            jQuery.ajax({
+                dataType: "json",
+                method: "GET",
+                url: "api/favorites",
+                success: (favorites) => {
+                    if (favorites.some(favorite => favorite.id === movieId)) {
+                        markFavoriteButtonAsFavorited();
+                    }
+                }
+            });
+        }
+    });
+
+    jQuery("#favorite-button").on("click", function () {
+        jQuery.ajax({
+            dataType: "json",
+            method: "POST",
+            url: "api/favorites",
+            data: { movieId: movieId },
+            success: () => markFavoriteButtonAsFavorited(),
+            error: (xhr) => {
+                const data = JSON.parse(xhr.responseText);
+                alert(data.message || "Could not add movie to favorites.");
+            }
+        });
+    });
+}
+
 function restoreBackToMovieListButton() {
     jQuery.ajax({
         dataType: "json",
@@ -58,6 +102,8 @@ restoreBackToMovieListButton();
 
 // Retrieve parameter "id" from HTML URL starting from "?"
 let movie_id = new URLSearchParams(window.location.search).get("id");
+
+initFavoriteButton(movie_id);
 
 // Make AJAX call using ID
 jQuery.ajax({
