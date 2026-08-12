@@ -19,13 +19,15 @@ public class LoginFilterServlet implements Filter {
 //        String contextPath = httpRequest.getContextPath().toLowerCase();
 //
 //        String pathInApp = requestURI.substring(contextPath.length());
-
-//        boolean isDashboardPath = pathInApp.startsWith("/_dashboard") || pathInApp.startsWith("/api/employee-dashboard");
+//
 //        boolean isLoginOrPublic = pathInApp.endsWith("/login.html") ||
+//                pathInApp.endsWith("/signup.html") ||
 //                pathInApp.endsWith("login.js") ||
+//                pathInApp.endsWith("signup.js") ||
 //                pathInApp.endsWith("/api/login") ||
+//                pathInApp.endsWith("/api/signup") ||
 //                pathInApp.endsWith("/api/logout") ||
-//                pathInApp.equals("/index.html") ||
+//                pathInApp.equals("/main.html") ||
 //                pathInApp.equals("/");
 //
 //        boolean isStaticResource = pathInApp.endsWith(".css") ||
@@ -34,25 +36,13 @@ public class LoginFilterServlet implements Filter {
 //                pathInApp.endsWith(".js");
 //
 //        HttpSession session = httpRequest.getSession(false);
-//        boolean isCustomerLoggedIn = (session != null && session.getAttribute("customer") != null);
-//        boolean isEmployeeLoggedIn = (session != null && session.getAttribute("employee") != null);
+//        boolean isLoggedIn = (session != null && session.getAttribute("user") != null);
 //
-//        if (isLoginOrPublic || isStaticResource) {
+//        if (isLoginOrPublic || isStaticResource || isLoggedIn) {
 //            chain.doFilter(request, response);
-//        } else if (isDashboardPath) {
-//            if (isEmployeeLoggedIn) {
-//                chain.doFilter(request, response);
-//            } else {
-//                httpResponse.sendRedirect(httpRequest.getContextPath() + "/index.html");
-//            }
 //        } else {
-//            if (isCustomerLoggedIn || isEmployeeLoggedIn) {
-//                chain.doFilter(request, response);
-//            } else {
-//                httpResponse.sendRedirect(httpRequest.getContextPath() + "/index.html");
-//            }
+//            httpResponse.sendRedirect(httpRequest.getContextPath() + "/main.html");
 //        }
-
 
     }
 }
