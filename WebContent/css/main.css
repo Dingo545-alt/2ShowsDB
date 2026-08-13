@@ -41,17 +41,17 @@ body {
 
 #fulltext-input:focus {
     outline: none;
-    border-color: #ff6a00;
+    border-color: #7a8f3c;
 }
 
 #fulltext-submit-button {
-    background-color: #ff6a00;
+    background-color: #7a8f3c;
     color: #0a0a0a;
     font-weight: 600;
 }
 
 #fulltext-submit-button:hover {
-    background-color: #ff8c3a;
+    background-color: #97ac57;
 }
 
 /* ---- Advanced search card ---- */
@@ -70,7 +70,7 @@ body {
 .search-container h1 {
     font-size: 1.3rem;
     margin: 0 0 20px;
-    color: #ff6a00;
+    color: #7a8f3c;
 }
 
 .search-container form {
@@ -99,7 +99,7 @@ body {
 
 .search-container input:focus {
     outline: none;
-    border-color: #ff6a00;
+    border-color: #7a8f3c;
 }
 
 .search-container button {
@@ -112,12 +112,12 @@ body {
 }
 
 #search-submit-button {
-    background-color: #ff6a00;
+    background-color: #7a8f3c;
     color: #0a0a0a;
 }
 
 #search-submit-button:hover {
-    background-color: #ff8c3a;
+    background-color: #97ac57;
 }
 
 #search-reset-button {
@@ -127,8 +127,8 @@ body {
 }
 
 #search-reset-button:hover {
-    border-color: #ff6a00;
-    color: #ff6a00;
+    border-color: #7a8f3c;
+    color: #7a8f3c;
 }
 
 /* ---- Browse by genre / title ---- */
@@ -147,7 +147,7 @@ body {
 .genres-container h1,
 .titles-container h1 {
     font-size: 1.3rem;
-    color: #ff6a00;
+    color: #7a8f3c;
     margin-bottom: 16px;
 }
 
@@ -166,16 +166,16 @@ body {
     display: inline-block;
     margin: 4px;
     padding: 6px 16px;
-    border: 1px solid #ff6a00;
+    border: 1px solid #7a8f3c;
     border-radius: 999px;
-    color: #ff6a00;
+    color: #7a8f3c;
     text-decoration: none;
     font-size: 0.9rem;
     transition: background-color 0.15s, color 0.15s;
 }
 
 .genre-item:hover {
-    background-color: #ff6a00;
+    background-color: #7a8f3c;
     color: #0a0a0a;
 }
 
@@ -195,7 +195,7 @@ body {
 }
 
 .alpha-link:hover {
-    background-color: #ff6a00;
-    border-color: #ff6a00;
+    background-color: #7a8f3c;
+    border-color: #7a8f3c;
     color: #0a0a0a;
 }
