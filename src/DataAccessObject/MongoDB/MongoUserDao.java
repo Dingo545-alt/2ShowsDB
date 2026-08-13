@@ -71,17 +71,7 @@ public class MongoUserDao implements UserDao {
 
         if (favorites.size() >= MAX_FAVORITES) return false;
 
-        Document favoriteDoc = new Document("id", movie.getId())
-                .append("title", movie.getTitle())
-                .append("year", movie.getYear());
-
-        Poster poster = movie.getPoster();
-        if (poster != null) {
-            favoriteDoc.append("poster", new Document("path", poster.getPath())
-                    .append("sizes", new Document("w342", poster.getW342())
-                            .append("original", poster.getOriginal())));
-        }
-
+        Document favoriteDoc = movieToDocument(movie);
         userCollection.updateOne(Filters.eq("_id", username), Updates.push("favorites", favoriteDoc));
         return true;
     }
@@ -94,37 +84,104 @@ public class MongoUserDao implements UserDao {
 
     @Override
     public List<Movie> getFavorites(String username) {
-        List<Movie> favorites = new ArrayList<>();
-
         Document userDoc = userCollection.find(Filters.eq("_id", username))
                 .projection(Projections.include("favorites"))
                 .first();
+
+        List<Movie> favorites = new ArrayList<>();
         if (userDoc == null) return favorites;
 
         List<Document> rawFavorites = userDoc.getList("favorites", Document.class);
         if (rawFavorites == null) return favorites;
 
         for (Document favoriteDoc : rawFavorites) {
-            Movie movie = new Movie();
-            movie.setId(favoriteDoc.getString("id"));
-            movie.setTitle(favoriteDoc.getString("title"));
-            movie.setYear(favoriteDoc.getInteger("year", 0));
+            favorites.add(documentToMovie(favoriteDoc));
+        }
+        return favorites;
+    }
 
-            Document posterDoc = favoriteDoc.get("poster", Document.class);
-            if (posterDoc != null) {
-                Poster poster = new Poster();
-                poster.setPath(posterDoc.getString("path"));
-                Document sizes = posterDoc.get("sizes", Document.class);
-                if (sizes != null) {
-                    poster.setW342(sizes.getString("w342"));
-                    poster.setOriginal(sizes.getString("original"));
+    @Override
+    public void setWatchStatus(String username, Movie movie, String status) {
+        Document userDoc = userCollection.find(Filters.eq("_id", username))
+                .projection(Projections.include("watchlist"))
+                .first();
+        if (userDoc == null) return;
+
+        List<Document> watchlist = userDoc.getList("watchlist", Document.class);
+        List<Document> updated = new ArrayList<>();
+        if (watchlist != null) {
+            for (Document entry : watchlist) {
+                if (!movie.getId().equals(entry.getString("id"))) {
+                    updated.add(entry);
                 }
-                movie.setPoster(poster);
             }
-
-            favorites.add(movie);
         }
 
-        return favorites;
+        Document entryDoc = movieToDocument(movie).append("status", status);
+        updated.add(entryDoc);
+
+        userCollection.updateOne(Filters.eq("_id", username), Updates.set("watchlist", updated));
+    }
+
+    @Override
+    public void removeFromWatchlist(String username, String movieId) {
+        userCollection.updateOne(Filters.eq("_id", username),
+                Updates.pull("watchlist", Filters.eq("id", movieId)));
+    }
+
+    @Override
+    public List<Movie> getWatchlist(String username) {
+        Document userDoc = userCollection.find(Filters.eq("_id", username))
+                .projection(Projections.include("watchlist"))
+                .first();
+
+        List<Movie> watchlist = new ArrayList<>();
+        if (userDoc == null) return watchlist;
+
+        List<Document> rawWatchlist = userDoc.getList("watchlist", Document.class);
+        if (rawWatchlist == null) return watchlist;
+
+        for (Document entryDoc : rawWatchlist) {
+            Movie movie = documentToMovie(entryDoc);
+            movie.setWatchStatus(entryDoc.getString("status"));
+            watchlist.add(movie);
+        }
+        return watchlist;
+    }
+
+    private Document movieToDocument(Movie movie) {
+        Document doc = new Document("id", movie.getId())
+                .append("title", movie.getTitle())
+                .append("year", movie.getYear());
+
+        Poster poster = movie.getPoster();
+        if (poster != null) {
+            doc.append("poster", new Document("path", poster.getPath())
+                    .append("sizes", new Document("w342", poster.getW342())
+                            .append("original", poster.getOriginal())));
+        }
+
+        return doc;
+    }
+
+    private Movie documentToMovie(Document doc) {
+        Movie movie = new Movie();
+        movie.setId(doc.getString("id"));
+        movie.setTitle(doc.getString("title"));
+        movie.setYear(doc.getInteger("year", 0));
+
+        Document posterDoc = doc.get("poster", Document.class);
+        if (posterDoc != null) {
+            Poster poster = new Poster();
+            poster.setPath(posterDoc.getString("path"));
+            Document sizes = posterDoc.get("sizes", Document.class);
+            if (sizes != null) {
+                poster.setW342(sizes.getString("w342"));
+                poster.setOriginal(sizes.getString("original"));
+            }
+            movie.setPoster(poster);
+        }
+
+        return movie;
     }
 }

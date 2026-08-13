@@ -108,6 +108,21 @@ users
         }
       }
     }
+  ],
+  "watchlist": [
+    {
+      "id":     "tt0111161",
+      "title":  "The Shawshank Redemption",
+      "year":   1994,
+      "status": "watched",
+      "poster": {
+        "path": "/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
+        "sizes": {
+          "w342":     "https://image.tmdb.org/t/p/w342/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
+          "original": "https://image.tmdb.org/t/p/original/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg"
+        }
+      }
+    }
   ]
 }
 
@@ -121,6 +136,12 @@ users
   page can render a thumbnail without a second lookup; capped at 3 entries,
   enforced in MongoUserDao.addFavorite rather than in Mongo itself
 - favorites is absent/null on users that haven't favorited anything yet
+- watchlist uses the same embedded-movie shape as favorites, plus a status
+  field ("watched" | "watching" | "plan_to_watch"); a movie appears at most
+  once, so setting a new status for a movie already on the list moves it
+  rather than adding a duplicate entry (MongoUserDao.setWatchStatus)
+- watchlist is uncapped (unlike favorites) and absent/null until a user sets
+  a status on their first movie
 
 
 sales

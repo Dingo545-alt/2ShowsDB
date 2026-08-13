@@ -15,6 +15,7 @@ public class Movie {
     private List<Genre> genres = new ArrayList<>();
     private List<Star> stars = new ArrayList<>();
     private Poster poster;
+    private String watchStatus; // "watched" | "watching" | "plan_to_watch"; only set on watchlist entries
 
     public Movie() {}
 
@@ -68,4 +69,7 @@ public class Movie {
 
     public Poster getPoster() { return poster; }
     public void setPoster(Poster poster) { this.poster = poster; }
+
+    public String getWatchStatus() { return watchStatus; }
+    public void setWatchStatus(String watchStatus) { this.watchStatus = watchStatus; }
 }

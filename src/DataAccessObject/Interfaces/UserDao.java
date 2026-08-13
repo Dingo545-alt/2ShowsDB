@@ -19,4 +19,12 @@ public interface UserDao {
     void removeFavorite(String username, String movieId);
 
     List<Movie> getFavorites(String username);
+
+    /** Moves the movie to the given status, replacing any status it already had in the watchlist. */
+    void setWatchStatus(String username, Movie movie, String status);
+
+    void removeFromWatchlist(String username, String movieId);
+
+    /** Each returned Movie has watchStatus set to "watched" | "watching" | "plan_to_watch". */
+    List<Movie> getWatchlist(String username);
 }
