@@ -1,5 +1,72 @@
 const MAX_FAVORITES = 3;
 
+// ---- Reusable movie title search + dropdown ----
+// Renders a search input into $container; calls onSelect(movie) when a result is picked.
+function attachMovieSearch($container, onSelect) {
+    const SEARCH_MIN_CHARS = 3;
+    const SEARCH_DEBOUNCE_MS = 300;
+    let debounceTimer = null;
+
+    $container.html(`
+        <div class="movie-search-wrapper">
+            <input type="search" class="movie-search-input" placeholder="Search movie title…" autocomplete="off">
+            <ul class="autocomplete-dropdown movie-search-dropdown" hidden></ul>
+        </div>
+    `);
+
+    const $input = $container.find(".movie-search-input");
+    const $dropdown = $container.find(".movie-search-dropdown");
+
+    function hideDropdown() {
+        $dropdown.empty().prop("hidden", true);
+    }
+
+    function showResults(results) {
+        $dropdown.empty();
+        if (!results.length) {
+            hideDropdown();
+            return;
+        }
+        results.forEach(movie => {
+            jQuery("<li>")
+                .text(movie.title)
+                .on("mousedown", function (e) {
+                    e.preventDefault(); // keep focus until onSelect runs
+                    hideDropdown();
+                    $input.val("");
+                    onSelect(movie);
+                })
+                .appendTo($dropdown);
+        });
+        $dropdown.prop("hidden", false);
+    }
+
+    $input.on("input", function () {
+        clearTimeout(debounceTimer);
+        const query = $input.val().trim();
+        if (query.length < SEARCH_MIN_CHARS) {
+            hideDropdown();
+            return;
+        }
+        debounceTimer = setTimeout(() => {
+            jQuery.ajax({
+                url: "api/full-text-search",
+                type: "GET",
+                data: { q: query },
+                dataType: "json",
+                success: showResults,
+                error: hideDropdown
+            });
+        }, SEARCH_DEBOUNCE_MS);
+    });
+
+    $input.on("blur", function () {
+        setTimeout(hideDropdown, 150);
+    });
+}
+
+// ---- Favorites ----
+
 function emptyFavoriteSlotHtml() {
     return `
         <div class="favorite-slot empty-slot">
@@ -24,6 +91,23 @@ function filledFavoriteSlotHtml(movie) {
             <button class="favorite-button remove-favorite-button" data-movie-id="${movie.id}">Remove</button>
         </div>
     `;
+}
+
+function addFavoriteById(movieId) {
+    jQuery.ajax({
+        url: "api/favorites",
+        type: "POST",
+        data: { movieId: movieId },
+        dataType: "json",
+        success: function () {
+            loadFavorites();
+        },
+        error: function (xhr) {
+            const data = JSON.parse(xhr.responseText);
+            alert(data.message || "Could not add movie to favorites.");
+            loadFavorites();
+        }
+    });
 }
 
 function loadFavorites() {
@@ -57,7 +141,15 @@ function renderFavorites(favorites) {
             }
         });
     });
+
+    $grid.find(".empty-slot").on("click", function () {
+        const $slot = jQuery(this);
+        attachMovieSearch($slot, movie => addFavoriteById(movie.id));
+        $slot.find(".movie-search-input").trigger("focus");
+    });
 }
+
+// ---- Watch lists ----
 
 function watchlistRowHtml(movie) {
     const posterUrl = movie.poster ? movie.poster.w342 : null;
@@ -120,6 +212,50 @@ function loadWatchlist() {
     });
 }
 
+// ---- Add-movie section (bottom of the watch lists) ----
+
+function initAddMovieSection() {
+    const $searchContainer = jQuery("#add-movie-search-container");
+    const $picker = jQuery("#add-movie-status-picker");
+    let selectedMovie = null;
+
+    function resetAddMovieSection() {
+        selectedMovie = null;
+        $picker.prop("hidden", true);
+        $searchContainer.show();
+        attachMovieSearch($searchContainer, onMovieSelected);
+    }
+
+    function onMovieSelected(movie) {
+        selectedMovie = movie;
+        jQuery("#add-movie-selected-title").text(movie.title);
+        $searchContainer.hide();
+        $picker.prop("hidden", false);
+    }
+
+    $picker.find(".watch-status-button").on("click", function () {
+        const status = jQuery(this).data("status");
+        jQuery.ajax({
+            url: "api/watchlist",
+            type: "POST",
+            data: { movieId: selectedMovie.id, status: status },
+            dataType: "json",
+            success: function () {
+                resetAddMovieSection();
+                loadWatchlist();
+            },
+            error: function (xhr) {
+                const data = JSON.parse(xhr.responseText);
+                alert(data.message || "Could not add movie.");
+            }
+        });
+    });
+
+    jQuery("#add-movie-cancel").on("click", resetAddMovieSection);
+
+    resetAddMovieSection();
+}
+
 jQuery(document).ready(function () {
     jQuery.ajax({
         url: "api/session-status",
@@ -131,6 +267,7 @@ jQuery(document).ready(function () {
                 jQuery("#profile-content").prop("hidden", false);
                 loadFavorites();
                 loadWatchlist();
+                initAddMovieSection();
             } else {
                 jQuery("#profile-logged-out").prop("hidden", false);
             }

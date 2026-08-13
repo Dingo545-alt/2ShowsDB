@@ -55,9 +55,21 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
+    padding: 12px;
+    box-sizing: border-box;
     border: 2px dashed #bbb;
     background-color: #eee;
     color: #999;
+    cursor: pointer;
+}
+
+.favorite-slot.empty-slot:hover {
+    background-color: #e4e4e4;
+    border-color: #999;
+}
+
+.favorite-slot.empty-slot .movie-search-wrapper {
+    width: 100%;
 }
 
 .favorite-slot .add-icon {
@@ -176,12 +188,50 @@
     background-color: #f0f0f0;
 }
 
-.add-movie-placeholder {
+.movie-search-wrapper {
+    position: relative;
+}
+
+.movie-search-input {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 0.9em;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.movie-search-dropdown {
+    max-height: 220px;
+}
+
+.add-movie-section {
     margin: 24px 30px 10px;
     padding: 16px;
-    text-align: center;
     border: 2px dashed #bbb;
     border-radius: 6px;
-    color: #999;
-    font-style: italic;
+}
+
+.add-movie-section h3 {
+    margin-top: 0;
+}
+
+.add-movie-section .movie-search-wrapper {
+    max-width: 400px;
+}
+
+#add-movie-status-picker .watch-status-buttons {
+    flex-direction: row;
+    max-width: 400px;
+}
+
+.add-movie-cancel-link {
+    margin-top: 8px;
+    background: none;
+    border: none;
+    color: #666;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.85em;
+    padding: 0;
 }

@@ -67,8 +67,18 @@
             </div>
         </section>
 
-        <div class="add-movie-placeholder">
-            &lt;Add Movie&gt; (future implementation)
+        <div class="add-movie-section">
+            <h3>Add a Movie</h3>
+            <div id="add-movie-search-container"></div>
+            <div id="add-movie-status-picker" hidden>
+                <p>Add "<span id="add-movie-selected-title"></span>" to:</p>
+                <div class="watch-status-buttons">
+                    <button class="watch-status-button watched" data-status="watched">Watched</button>
+                    <button class="watch-status-button watching" data-status="watching">Watching</button>
+                    <button class="watch-status-button plan-to-watch" data-status="plan_to_watch">Plan to Watch</button>
+                </div>
+                <button type="button" id="add-movie-cancel" class="add-movie-cancel-link">Cancel</button>
+            </div>
         </div>
     </div>
 </main>
