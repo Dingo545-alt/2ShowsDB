@@ -166,3 +166,59 @@
     color: #1a3a6e;
     border-color: #1a3a6e;
 }
+
+/* ---- Watch status buttons (shared: single-movie page + profile page) ---- */
+.watch-status-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.watch-status-button {
+    display: block;
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 0.9em;
+    border: 1px solid;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.watch-status-button.watched {
+    color: #2e7d32;
+    border-color: #2e7d32;
+}
+
+.watch-status-button.watching {
+    color: #a68300;
+    border-color: #f9a825;
+}
+
+.watch-status-button.plan-to-watch {
+    color: #616161;
+    border-color: #9e9e9e;
+}
+
+.watch-status-button:hover:not(.active) {
+    background-color: #f0f0f0;
+}
+
+.watch-status-button.watched.active {
+    background-color: #2e7d32;
+    border-color: #2e7d32;
+    color: #fff;
+}
+
+.watch-status-button.watching.active {
+    background-color: #f9a825;
+    border-color: #f9a825;
+    color: #402d00;
+}
+
+.watch-status-button.plan-to-watch.active {
+    background-color: #9e9e9e;
+    border-color: #9e9e9e;
+    color: #fff;
+}

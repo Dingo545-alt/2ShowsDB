@@ -83,6 +83,51 @@ function initFavoriteButton(movieId) {
     });
 }
 
+function markWatchStatusButtonAsActive(status) {
+    jQuery(".watch-status-button")
+        .removeClass("active")
+        .filter(`[data-status="${status}"]`)
+        .addClass("active");
+}
+
+function initWatchStatusButtons(movieId) {
+    jQuery.ajax({
+        dataType: "json",
+        method: "GET",
+        url: "api/session-status",
+        success: (sessionData) => {
+            if (!sessionData.loggedIn) return;
+
+            jQuery("#watch-status-buttons").prop("hidden", false);
+
+            jQuery.ajax({
+                dataType: "json",
+                method: "GET",
+                url: "api/watchlist",
+                success: (watchlist) => {
+                    const entry = watchlist.find(movie => movie.id === movieId);
+                    if (entry) markWatchStatusButtonAsActive(entry.status);
+                }
+            });
+        }
+    });
+
+    jQuery(".watch-status-button").on("click", function () {
+        const status = jQuery(this).data("status");
+        jQuery.ajax({
+            dataType: "json",
+            method: "POST",
+            url: "api/watchlist",
+            data: { movieId: movieId, status: status },
+            success: () => markWatchStatusButtonAsActive(status),
+            error: (xhr) => {
+                const data = JSON.parse(xhr.responseText);
+                alert(data.message || "Could not update watch status.");
+            }
+        });
+    });
+}
+
 function restoreBackToMovieListButton() {
     jQuery.ajax({
         dataType: "json",
@@ -104,6 +149,7 @@ restoreBackToMovieListButton();
 let movie_id = new URLSearchParams(window.location.search).get("id");
 
 initFavoriteButton(movie_id);
+initWatchStatusButtons(movie_id);
 
 // Make AJAX call using ID
 jQuery.ajax({

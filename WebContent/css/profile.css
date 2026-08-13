@@ -124,3 +124,64 @@
     color: #999;
     font-style: italic;
 }
+
+.watchlist-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.watchlist-table td {
+    padding: 6px 4px;
+    vertical-align: middle;
+    border-bottom: 1px solid #ddd;
+}
+
+.watchlist-poster {
+    display: block;
+    width: 50px;
+    height: 74px;
+    object-fit: cover;
+    border-radius: 3px;
+}
+
+.watchlist-poster-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-color: #eee;
+    color: #999;
+    font-size: 0.75em;
+}
+
+.watchlist-title-cell a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.watchlist-title-cell a:hover {
+    text-decoration: underline;
+}
+
+.remove-watchlist-button {
+    padding: 2px 8px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+    color: #a33;
+}
+
+.remove-watchlist-button:hover {
+    background-color: #f0f0f0;
+}
+
+.add-movie-placeholder {
+    margin: 24px 30px 10px;
+    padding: 16px;
+    text-align: center;
+    border: 2px dashed #bbb;
+    border-radius: 6px;
+    color: #999;
+    font-style: italic;
+}

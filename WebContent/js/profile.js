@@ -59,6 +59,67 @@ function renderFavorites(favorites) {
     });
 }
 
+function watchlistRowHtml(movie) {
+    const posterUrl = movie.poster ? movie.poster.w342 : null;
+    const posterHtml = posterUrl
+        ? `<img class="watchlist-poster" src="${posterUrl}" alt="${movie.title} poster">`
+        : `<span class="watchlist-poster watchlist-poster-placeholder">N/A</span>`;
+
+    return `
+        <tr>
+            <td>${posterHtml}</td>
+            <td class="watchlist-title-cell">
+                <a href="single-movie.html?id=${encodeURIComponent(movie.id)}">${movie.title} (${movie.year})</a>
+            </td>
+            <td><button class="remove-watchlist-button" data-movie-id="${movie.id}">✕</button></td>
+        </tr>
+    `;
+}
+
+function renderWatchlistColumn(status, movies) {
+    const $container = jQuery("#" + status + "-items");
+    $container.empty();
+
+    if (movies.length === 0) {
+        $container.html('<p class="empty-state">No movies yet</p>');
+        return;
+    }
+
+    const $table = jQuery('<table class="watchlist-table"><tbody></tbody></table>');
+    const $tbody = $table.find("tbody");
+    movies.forEach(movie => $tbody.append(watchlistRowHtml(movie)));
+    $container.append($table);
+
+    $table.find(".remove-watchlist-button").on("click", function () {
+        const movieId = jQuery(this).data("movie-id");
+        jQuery.ajax({
+            url: "api/watchlist?movieId=" + encodeURIComponent(movieId),
+            type: "DELETE",
+            dataType: "json",
+            success: function () {
+                loadWatchlist();
+            }
+        });
+    });
+}
+
+function loadWatchlist() {
+    jQuery.ajax({
+        url: "api/watchlist",
+        type: "GET",
+        dataType: "json",
+        success: function (watchlist) {
+            const byStatus = { watched: [], watching: [], plan_to_watch: [] };
+            watchlist.forEach(movie => {
+                if (byStatus[movie.status]) byStatus[movie.status].push(movie);
+            });
+            renderWatchlistColumn("watched", byStatus.watched);
+            renderWatchlistColumn("watching", byStatus.watching);
+            renderWatchlistColumn("plan_to_watch", byStatus.plan_to_watch);
+        }
+    });
+}
+
 jQuery(document).ready(function () {
     jQuery.ajax({
         url: "api/session-status",
@@ -69,6 +130,7 @@ jQuery(document).ready(function () {
                 jQuery("#profile-username").text(data.username);
                 jQuery("#profile-content").prop("hidden", false);
                 loadFavorites();
+                loadWatchlist();
             } else {
                 jQuery("#profile-logged-out").prop("hidden", false);
             }
