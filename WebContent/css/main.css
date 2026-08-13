@@ -1,0 +1,201 @@
+/* ---- Landing page theme: orange & black ---- */
+/* Scoped to main.html only (page-specific stylesheet, not shared style.css) */
+
+body {
+    margin: 0;
+    background-color: #121212;
+    color: #f2f2f2;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Hero: full-text search ---- */
+.fulltext-search-container {
+    max-width: 640px;
+    margin: 64px auto 0;
+    padding: 0 20px;
+    text-align: center;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.fulltext-search-container h1 {
+    font-size: 2.4rem;
+    margin-bottom: 24px;
+    color: #fff;
+}
+
+#fulltext-input {
+    background-color: #1c1c1c;
+    border: 1px solid #333;
+    color: #f2f2f2;
+}
+
+#fulltext-input::placeholder {
+    color: #888;
+}
+
+#fulltext-input:focus {
+    outline: none;
+    border-color: #ff6a00;
+}
+
+#fulltext-submit-button {
+    background-color: #ff6a00;
+    color: #0a0a0a;
+    font-weight: 600;
+}
+
+#fulltext-submit-button:hover {
+    background-color: #ff8c3a;
+}
+
+/* ---- Advanced search card ---- */
+.search-container {
+    max-width: 640px;
+    margin: 40px auto 0;
+    padding: 24px 30px 30px;
+    box-sizing: border-box;
+    background-color: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out 0.15s forwards;
+}
+
+.search-container h1 {
+    font-size: 1.3rem;
+    margin: 0 0 20px;
+    color: #ff6a00;
+}
+
+.search-container form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 16px;
+}
+
+.search-container label {
+    display: block;
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-bottom: 4px;
+}
+
+.search-container input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    background-color: #111;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: #f2f2f2;
+    font-size: 0.95rem;
+}
+
+.search-container input:focus {
+    outline: none;
+    border-color: #ff6a00;
+}
+
+.search-container button {
+    padding: 9px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+#search-submit-button {
+    background-color: #ff6a00;
+    color: #0a0a0a;
+}
+
+#search-submit-button:hover {
+    background-color: #ff8c3a;
+}
+
+#search-reset-button {
+    background-color: transparent;
+    color: #ccc;
+    border: 1px solid #444;
+}
+
+#search-reset-button:hover {
+    border-color: #ff6a00;
+    color: #ff6a00;
+}
+
+/* ---- Browse by genre / title ---- */
+.genres-container,
+.titles-container {
+    max-width: 900px;
+    margin: 40px auto 0;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.titles-container {
+    padding-bottom: 50px;
+}
+
+.genres-container h1,
+.titles-container h1 {
+    font-size: 1.3rem;
+    color: #ff6a00;
+    margin-bottom: 16px;
+}
+
+.genre-links,
+.alpha-links {
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+}
+
+.genre-links.loaded,
+.alpha-links.loaded {
+    opacity: 1;
+}
+
+.genre-item {
+    display: inline-block;
+    margin: 4px;
+    padding: 6px 16px;
+    border: 1px solid #ff6a00;
+    border-radius: 999px;
+    color: #ff6a00;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.genre-item:hover {
+    background-color: #ff6a00;
+    color: #0a0a0a;
+}
+
+.alpha-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    margin: 3px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #f2f2f2;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.alpha-link:hover {
+    background-color: #ff6a00;
+    border-color: #ff6a00;
+    color: #0a0a0a;
+}

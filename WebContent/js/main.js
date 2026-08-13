@@ -3,7 +3,7 @@ function buildGenreLinks() {
         url: "api/genres",
         type: "GET",
         success: function(genres) {
-            const $container = jQuery(".genres-container");
+            const $container = jQuery(".genre-links");
             genres.forEach(genre => {
                 $container.append(jQuery("<a>", {
                     href:  "movie-list.html?genre=" + encodeURIComponent(genre),
@@ -12,12 +12,13 @@ function buildGenreLinks() {
                 }));
                 $container.append(" ");
             });
+            $container.addClass("loaded");
         }
     });
 }
 
 function buildTitleStartingLetterLinks() {
-    const $container = jQuery(".titles-container");
+    const $container = jQuery(".alpha-links");
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split("").forEach(char => {
         $container.append(jQuery("<a>", {
             href:  "movie-list.html?start-char=" + char,
@@ -26,6 +27,7 @@ function buildTitleStartingLetterLinks() {
         }));
         $container.append(" ");
     });
+    $container.addClass("loaded");
 }
 
 // ---- Autocomplete ----
