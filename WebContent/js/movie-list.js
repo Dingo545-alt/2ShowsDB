@@ -68,7 +68,8 @@ function readCurrentStateFromUrl() {
         director:   urlParams.get("director")    || null,
         star:       urlParams.get("star")        || null,
         genre:      urlParams.get("genre")       || null,
-        startChar:  urlParams.get("start-char")  || null
+        startChar:  urlParams.get("start-char")  || null,
+        fulltext:   urlParams.get("fulltext")    || null
     };
 }
 
@@ -243,6 +244,7 @@ function fetchMovieListAndRender(state) {
     if (state.star)      requestData.star       = state.star;
     if (state.genre)     requestData.genre      = state.genre;
     if (state.startChar) requestData["start-char"] = state.startChar;
+    if (state.fulltext)  requestData.fulltext   = state.fulltext;
 
     jQuery.ajax({
         dataType: "json",
