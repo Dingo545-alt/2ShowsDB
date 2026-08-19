@@ -4,9 +4,9 @@ tmdb_etl.py  —  Fetch movies from the TMDB API and load them into MongoDB
                  following the moviedb schema in "Mongo Schema readme.txt".
 
 Schema target:
-  movies    : { _id, title, year, director{id,name}, price, rating, vote_count, genres[], stars[{id,name}] }
-  stars     : { _id, name, dob, photo, movies[{id,title,year}] }
-  directors : { _id, name, dob, photo, movies[{id,title,year}] }
+  movies    : { _id, title, year, director{id,name}, price, rating, vote_count, genres[], stars[{id,name}], overview }
+  stars     : { _id, name, dob, photo, biography, movies[{id,title,year}] }
+  directors : { _id, name, dob, photo, biography, movies[{id,title,year}] }
 
 Setup:
   pip install requests pymongo
@@ -19,10 +19,10 @@ Usage:
   python tmdb_etl.py --pages 20                 # 400 movies
   python tmdb_etl.py --pages 20 --fetch-star-counts   # accurate star ordering (slow)
 
-Star / director dob / photo note:
+Star / director dob / photo / biography note:
   Every ETL run fetches /person/{id} for each newly-seen star or director to
-  populate dob and photo (one extra API call per unique person, shared by
-  both fields) — dob and photo are core schema data, not optional.
+  populate dob, photo, and biography (one extra API call per unique person,
+  shared by all three fields) — these are core schema data, not optional.
 
 Star ordering note:
   The schema orders stars by career-movie-count DESC, then name ASC (matching MongoMigration).
@@ -126,10 +126,10 @@ def fetch_movie_detail(tmdb_id: int) -> dict | None:
 
 def fetch_person_details(person_map: dict, label: str, fetch_career_counts: bool = False) -> dict:
     """
-    Fetches dob + photo for every TMDB person in person_map (mutated in place),
-    shared by both stars and directors. When fetch_career_counts is set (stars
-    only), also fetches each person's total movie-credit count, returned as
-    {id: count} — used to order movies.stars[] by career count DESC.
+    Fetches dob + photo + biography for every TMDB person in person_map (mutated
+    in place), shared by both stars and directors. When fetch_career_counts is
+    set (stars only), also fetches each person's total movie-credit count,
+    returned as {id: count} — used to order movies.stars[] by career count DESC.
     """
     career_counts: dict[str, int] = {}
     total = len(person_map)
@@ -138,6 +138,7 @@ def fetch_person_details(person_map: dict, label: str, fetch_career_counts: bool
             person = tmdb_get(f"/person/{info['tmdb_id']}")
             info["dob"] = person.get("birthday") or None
             info["photo"] = build_photo(person.get("profile_path"))
+            info["biography"] = person.get("biography") or None
 
             if fetch_career_counts:
                 credits = tmdb_get(f"/person/{info['tmdb_id']}/movie_credits")
@@ -176,6 +177,7 @@ def build_movie_doc(detail: dict, price: float) -> dict | None:
     votes      = int(vote_count)           if vote_count else None
 
     poster = build_poster(detail.get("poster_path"))
+    overview = detail.get("overview") or None
 
     # Stars: TMDB billing order used by default; overridden by career-count sort
     # in main() when --fetch-star-counts is set.
@@ -196,6 +198,7 @@ def build_movie_doc(detail: dict, price: float) -> dict | None:
         "genres":     genres,
         "stars":      stars,
         "poster":     poster,
+        "overview":   overview,
     }
 
 
@@ -281,11 +284,12 @@ def build_star_docs(movie_docs: list[dict], cast_map: dict) -> list[dict]:
             key=lambda m: (-m["year"], m["title"])
         )
         docs.append({
-            "_id":    sid,
-            "name":   info["name"],
-            "dob":    info.get("dob"),
-            "photo":  info.get("photo"),
-            "movies": movies_sorted,
+            "_id":       sid,
+            "name":      info["name"],
+            "dob":       info.get("dob"),
+            "photo":     info.get("photo"),
+            "biography": info.get("biography"),
+            "movies":    movies_sorted,
         })
     return docs
 
@@ -305,11 +309,12 @@ def build_director_docs(director_map: dict, director_movies: dict) -> list[dict]
             key=lambda m: (-m["year"], m["title"])
         )
         docs.append({
-            "_id":    did,
-            "name":   info["name"],
-            "dob":    info.get("dob"),
-            "photo":  info.get("photo"),
-            "movies": movies_sorted,
+            "_id":       did,
+            "name":      info["name"],
+            "dob":       info.get("dob"),
+            "photo":     info.get("photo"),
+            "biography": info.get("biography"),
+            "movies":    movies_sorted,
         })
     return docs
 
@@ -336,20 +341,24 @@ def upsert_in_batches(col, docs: list[dict], label: str) -> set:
     return inserted_ids
 
 
+PERSON_MERGE_FIELDS = ("dob", "photo", "biography")
+
+
 def upsert_person_docs_in_batches(col, docs: list[dict], label: str) -> None:
     """
     Upserts star or director documents — anything shaped
-    { _id, name, dob, photo, movies[] }.
+    { _id, name, dob, photo, biography, movies[] }.
 
-    For new people     : inserts name via $setOnInsert; dob/photo are
+    For new people     : inserts name via $setOnInsert; dob/photo/biography are
                          $setOnInsert'd as null only if this run has no value
                          for the person, so the fields still exist on the doc.
-    For existing people : name is never overwritten. dob/photo are only ever
-                         $set when this run resolved a real (non-null) value —
-                         an already null value is never used to clobber a
-                         previously-known one, and a previously-null value
-                         gets filled in as soon as a later run resolves it
-                         (fixes dob/photo being frozen at null forever).
+    For existing people : name is never overwritten. dob/photo/biography are
+                         only ever $set when this run resolved a real
+                         (non-null) value — an already null value is never
+                         used to clobber a previously-known one, and a
+                         previously-null value gets filled in as soon as a
+                         later run resolves it (fixes those fields being
+                         frozen at null forever).
     In all cases        : merges new movie stubs in without duplicating.
 
     After all batches, sorts each person's movies[] by year DESC, title ASC
@@ -367,14 +376,11 @@ def upsert_person_docs_in_batches(col, docs: list[dict], label: str) -> None:
             set_on_insert = {"name": d["name"]}
             update = {"$addToSet": {"movies": {"$each": d["movies"]}}}
             set_fields = {}
-            if d["dob"]:
-                set_fields["dob"] = d["dob"]
-            else:
-                set_on_insert["dob"] = None
-            if d["photo"]:
-                set_fields["photo"] = d["photo"]
-            else:
-                set_on_insert["photo"] = None
+            for field in PERSON_MERGE_FIELDS:
+                if d.get(field):
+                    set_fields[field] = d[field]
+                else:
+                    set_on_insert[field] = None
             if set_fields:
                 update["$set"] = set_fields
             update["$setOnInsert"] = set_on_insert
@@ -441,8 +447,8 @@ def main():
     # -- Step 2: fetch detail + credits ----------------------------------------
     print(f"\n[Step 2] Fetching movie details + credits …")
     movie_docs: list[dict] = []
-    cast_map: dict[str, dict] = {}                              # star_id     → {name, dob, photo, tmdb_id}
-    director_map: dict[str, dict] = {}                          # director_id → {name, dob, photo, tmdb_id}
+    cast_map: dict[str, dict] = {}                              # star_id     → {name, dob, photo, biography, tmdb_id}
+    director_map: dict[str, dict] = {}                          # director_id → {name, dob, photo, biography, tmdb_id}
     director_movies: dict[str, list[dict]] = defaultdict(list)  # director_id → [movie stub, ...]
     skipped = 0
 
@@ -465,10 +471,11 @@ def main():
             sid = person_id(person)
             if sid not in cast_map:
                 cast_map[sid] = {
-                    "name":    person["name"],
-                    "dob":     None,
-                    "photo":   None,
-                    "tmdb_id": person["id"],
+                    "name":      person["name"],
+                    "dob":       None,
+                    "photo":     None,
+                    "biography": None,
+                    "tmdb_id":   person["id"],
                 }
 
         # doc is non-None only when build_movie_doc found a director in this
@@ -479,10 +486,11 @@ def main():
             did = person_id(director_person)
             if did not in director_map:
                 director_map[did] = {
-                    "name":    director_person["name"],
-                    "dob":     None,
-                    "photo":   None,
-                    "tmdb_id": director_person["id"],
+                    "name":      director_person["name"],
+                    "dob":       None,
+                    "photo":     None,
+                    "biography": None,
+                    "tmdb_id":   director_person["id"],
                 }
             director_movies[did].append({"id": doc["_id"], "title": doc["title"], "year": doc["year"]})
 
