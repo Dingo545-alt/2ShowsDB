@@ -60,6 +60,8 @@ public class SingleMovieServlet extends HttpServlet{
                 responseJson.add("poster", posterJson);
             }
 
+            responseJson.addProperty("overview", movie.getOverview());
+
             JsonArray genresArray = new JsonArray();
             for (Genre genre : movie.getGenres()) {
                 JsonObject genreJson = new JsonObject();

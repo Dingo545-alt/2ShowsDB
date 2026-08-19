@@ -92,6 +92,8 @@ public class MongoMovieDao implements MovieDao {
             movie.setPoster(poster);
         }
 
+        movie.setOverview(doc.getString("overview"));
+
         return movie;
     }
 
