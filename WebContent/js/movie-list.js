@@ -1,14 +1,20 @@
 const DEFAULT_PRIMARY_SORT_FIELD       = "rating";
 const DEFAULT_PRIMARY_SORT_DIRECTION   = "desc";
-const DEFAULT_SECONDARY_SORT_FIELD     = "title";
-const DEFAULT_SECONDARY_SORT_DIRECTION = "asc";
 const DEFAULT_PAGE_SIZE                = 10;
 const DEFAULT_PAGE_NUMBER              = 1;
 
 const ALLOWED_PAGE_SIZES = [10, 25, 50, 100];
 
+// The direction a column starts in the first time it's clicked (ratings are
+// most useful sorted high-to-low first, titles most useful A-to-Z first).
+const DEFAULT_DIRECTION_FOR_FIELD = {
+    rating: "desc",
+    title:  "asc"
+};
+
 /**
- * Returns the "other" sortable field. Used to ensure the secondary is different from the primary.
+ * Returns the "other" sortable field. Used as the fixed tiebreaker for whichever
+ * field is currently active, so results are always stably ordered.
  */
 function otherSortField(sortField) {
     return sortField === "title" ? "rating" : "title";
@@ -17,6 +23,9 @@ function otherSortField(sortField) {
 /**
  * Reads the current sort state from the page URL's query string, falling back
  * to the defaults if the params are missing or bad. Uses URL to determine it.
+ *
+ * Only the primary field/direction are user-controlled; the secondary is always
+ * used as a fixed tiebreaker (the other field, ascending).
  *
  * Returns example {primaryField, primaryDirection, secondaryField, secondaryDirection}.
  */
@@ -33,19 +42,8 @@ function readCurrentStateFromUrl() {
         primaryDirection = DEFAULT_PRIMARY_SORT_DIRECTION;
     }
 
-    let secondaryField = urlParams.get("secondarySortField");
-    if (secondaryField !== "title" && secondaryField !== "rating") {
-        secondaryField = DEFAULT_SECONDARY_SORT_FIELD;
-    }
-
-    if (secondaryField === primaryField) {
-        secondaryField = otherSortField(primaryField);
-    }
-
-    let secondaryDirection = urlParams.get("secondarySortDirection");
-    if (secondaryDirection !== "asc" && secondaryDirection !== "desc") {
-        secondaryDirection = DEFAULT_SECONDARY_SORT_DIRECTION;
-    }
+    const secondaryField     = otherSortField(primaryField);
+    const secondaryDirection = "asc";
 
     // --- Pagination ---
     let pageSize = parseInt(urlParams.get("pageSize"), 10);
@@ -92,8 +90,7 @@ function writeStateToUrl(state) {
 }
 
 /**
- * Updates the ⇅ / ▲ / ▼ icon next to each sortable column header
- * ⇅ = unsorted
+ * Updates the ▲ / ▼ icon next to whichever sortable column header is active.
  * ▲ = ascending
  * ▼ = descending
  */
@@ -101,20 +98,14 @@ function updateHeaderSortIndicatorIcons(sortState) {
     jQuery(".sortable-header").each(function () {
         const headerElement    = jQuery(this);
         const headerSortField  = headerElement.data("sort-field");
-        const badgeElement     = headerElement.find(".sort-priority-badge");
         const directionElement = headerElement.find(".sort-direction-icon");
 
-        // Clear prior state before applying the new one
-        headerElement.removeClass("is-primary-sort-column is-secondary-sort-column");
+        headerElement.removeClass("is-active-sort-column");
+        directionElement.text("");
 
         if (headerSortField === sortState.primaryField) {
-            badgeElement.text("1");
             directionElement.text(sortState.primaryDirection === "asc" ? "▲" : "▼");
-            headerElement.addClass("is-primary-sort-column");
-        } else if (headerSortField === sortState.secondaryField) {
-            badgeElement.text("2");
-            directionElement.text(sortState.secondaryDirection === "asc" ? "▲" : "▼");
-            headerElement.addClass("is-secondary-sort-column");
+            headerElement.addClass("is-active-sort-column");
         }
     });
 }
@@ -149,34 +140,23 @@ function updatePaginationControlsFromServerResponse(state, totalCount) {
 
 /**
  *   Clicking the already-active column flips its direction.
- *   Clicking an inactive column makes it active, starting in descending order
+ *   Clicking the other column makes it active, starting in its default direction.
+ *   The inactive column always becomes the tiebreaker (ascending), so results
+ *   never look randomly ordered when two movies share a title or rating.
  */
 function computeNextStateForHeaderClick(clickedSortField, currentState) {
-    const clickedFieldIsPrimary = clickedSortField === currentState.primaryField;
+    const clickedFieldIsActive = clickedSortField === currentState.primaryField;
 
-    let nextPrimaryField, nextPrimaryDirection;
-    let nextSecondaryField, nextSecondaryDirection;
-
-    if (clickedFieldIsPrimary) {
-        nextPrimaryField       = currentState.primaryField;
-        nextPrimaryDirection   = currentState.primaryDirection === "asc" ? "desc" : "asc";
-        nextSecondaryField     = currentState.secondaryField;
-        nextSecondaryDirection = currentState.secondaryDirection;
-    } else {
-        // Clicked field is currently the secondar, then swap roles, keep directions
-        nextPrimaryField       = currentState.secondaryField;
-        nextPrimaryDirection   = currentState.secondaryDirection;
-        nextSecondaryField     = currentState.primaryField;
-        nextSecondaryDirection = currentState.primaryDirection;
-    }
+    const nextPrimaryDirection = clickedFieldIsActive
+        ? (currentState.primaryDirection === "asc" ? "desc" : "asc")
+        : DEFAULT_DIRECTION_FOR_FIELD[clickedSortField];
 
     return {
         ...currentState,
-        primaryField:       nextPrimaryField,
+        primaryField:       clickedSortField,
         primaryDirection:   nextPrimaryDirection,
-        secondaryField:     nextSecondaryField,
-        secondaryDirection: nextSecondaryDirection,
-        pageSize:           currentState.pageSize,
+        secondaryField:     otherSortField(clickedSortField),
+        secondaryDirection: "asc",
         pageNumber:         1    // reset to first page on any sort change
     };
 }
