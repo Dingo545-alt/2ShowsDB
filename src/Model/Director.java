@@ -8,6 +8,7 @@ public class Director {
     private String name;
     private String dob; // ISO 8601 date string ("YYYY-MM-DD"), null when unknown
     private Photo photo;
+    private String biography; // TMDB person bio, null when TMDB has none
     private List<Movie> movies = new ArrayList<>();
 
     public Director() {}
@@ -28,6 +29,9 @@ public class Director {
 
     public Photo getPhoto() { return photo; }
     public void setPhoto(Photo photo) { this.photo = photo; }
+
+    public String getBiography() { return biography; }
+    public void setBiography(String biography) { this.biography = biography; }
 
     public List<Movie> getMovies() { return movies; }
     public void setMovies(List<Movie> movies) { this.movies = movies; }

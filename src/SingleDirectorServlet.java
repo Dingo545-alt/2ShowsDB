@@ -66,6 +66,8 @@ public class SingleDirectorServlet extends HttpServlet {
                 directorJson.add("photo", null);
             }
 
+            directorJson.addProperty("biography", director.getBiography());
+
             JsonArray moviesArray = new JsonArray();
             for (Movie movie : director.getMovies()) {
                 JsonObject movieJson = new JsonObject();

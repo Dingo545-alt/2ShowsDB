@@ -24,7 +24,8 @@ movies
       "w342":     "https://image.tmdb.org/t/p/w342/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg",
       "original": "https://image.tmdb.org/t/p/original/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg"
     }
-  }
+  },
+  "overview": "Two imprisoned men bond over a number of years..."
 }
 
 - rating and vote_count are null for unrated movies
@@ -36,6 +37,7 @@ movies
   path (kept for reference/debugging), sizes holds pre-resolved full URLs for
   the sizes the app actually uses (w342 for list thumbnails, original for the
   detail page) so the app never has to know TMDB's image base URL / size scheme
+- overview is TMDB's plot synopsis, null when TMDB has none
 
 
 stars
@@ -51,6 +53,7 @@ stars
       "original": "https://image.tmdb.org/t/p/original/eOo3bfnyCFbcw0lseYUZDgvhpn0.jpg"
     }
   },
+  "biography": "Timothy Francis Robbins is an American actor...",
   "movies": [
     { "id": "tt0245429", "title": "Mystic River",             "year": 2003 },
     { "id": "tt0111161", "title": "The Shawshank Redemption", "year": 1994 }
@@ -63,6 +66,7 @@ stars
   the sizes the app actually uses (w185 for list/detail thumbnails, original
   for a full-size view) so the app never has to know TMDB's image base URL /
   size scheme
+- biography is TMDB's person bio, null when TMDB has none
 - movies ordered by year DESC, then title ASC
 
 
@@ -79,6 +83,7 @@ directors
       "original": "https://image.tmdb.org/t/p/original/lNqRT7dfNoLuTgOG3JsPSbYbUnV.jpg"
     }
   },
+  "biography": "Frank Darabont is a French-American film director...",
   "movies": [
     { "id": "tt0111161", "title": "The Shawshank Redemption", "year": 1994 }
   ]

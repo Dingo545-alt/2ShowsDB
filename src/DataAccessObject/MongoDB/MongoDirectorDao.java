@@ -48,6 +48,8 @@ public class MongoDirectorDao implements DirectorDao {
             director.setPhoto(photo);
         }
 
+        director.setBiography(doc.getString("biography"));
+
         // Embedded movies array - already sorted year DESC, title ASC by the ETL
         List<Document> rawMovies = doc.getList("movies", Document.class);
         if (rawMovies != null) {
