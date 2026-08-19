@@ -67,6 +67,8 @@ public class SingleStarServlet extends HttpServlet {
                 starJson.add("photo", null);
             }
 
+            starJson.addProperty("biography", star.getBiography());
+
             JsonArray moviesArray = new JsonArray();
             for (Movie movie : star.getMovies()) {
                 JsonObject movieJson = new JsonObject();

@@ -48,6 +48,8 @@ public class MongoStarDao implements StarDao {
             star.setPhoto(photo);
         }
 
+        star.setBiography(doc.getString("biography"));
+
         // Embedded movies array - alr sorted year DESC, title ASC by migration
         List<Document> rawMovies = doc.getList("movies", Document.class);
         if (rawMovies != null) {
