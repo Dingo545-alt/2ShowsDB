@@ -21,8 +21,12 @@ function handleSingleDirectorResult(resultData) {
     // Populate Movie Table
     let tableBodyElement = jQuery("#director_table_movie_body");
     resultData.movies.forEach(movie => {
+        const posterHTML = movie.poster
+            ? `<img src="${movie.poster.w342}" alt="${movie.title} poster" class="filmography-poster-thumbnail">`
+            : `<span class="filmography-poster-placeholder">N/A</span>`;
         let rowHTML = `
             <tr>
+                <td>${posterHTML}</td>
                 <td>
                     <a href="single-movie.html?id=${movie.id}">
                         ${movie.title}

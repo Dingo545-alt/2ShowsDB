@@ -3,6 +3,7 @@ import DataAccessObject.Interfaces.DirectorDao;
 import Model.Director;
 import Model.Movie;
 import Model.Photo;
+import Model.Poster;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import jakarta.servlet.ServletContext;
@@ -60,6 +61,7 @@ class SingleDirectorServletTest {
         director.setBiography("Frank Darabont is a French-American film director.");
         Movie movie = new Movie("tt0111161", "The Shawshank Redemption");
         movie.setYear(1994);
+        movie.setPoster(new Poster("/poster.jpg", "https://img/w342/poster.jpg", "https://img/original/poster.jpg"));
         director.setMovies(List.of(movie));
         when(directorDao.getDirectorById("nm0000399")).thenReturn(director);
 
@@ -78,6 +80,7 @@ class SingleDirectorServletTest {
         JsonObject movieJson = json.getAsJsonArray("movies").get(0).getAsJsonObject();
         assertEquals("tt0111161", movieJson.get("id").getAsString());
         assertEquals(1994, movieJson.get("year").getAsInt());
+        assertEquals("/poster.jpg", movieJson.getAsJsonObject("poster").get("path").getAsString());
     }
 
     @Test

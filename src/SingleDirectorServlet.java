@@ -2,8 +2,11 @@ import DataAccessObject.DaoFactory;
 import DataAccessObject.Interfaces.DirectorDao;
 import Model.Director;
 import Model.Movie;
+import Model.Poster;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import jakarta.servlet.annotation.WebServlet;
@@ -74,6 +77,7 @@ public class SingleDirectorServlet extends HttpServlet {
                 movieJson.addProperty("id",    movie.getId());
                 movieJson.addProperty("title", movie.getTitle());
                 movieJson.addProperty("year",  movie.getYear());
+                movieJson.add("poster", posterToJson(movie.getPoster()));
                 moviesArray.add(movieJson);
             }
             directorJson.add("movies", moviesArray);
@@ -90,5 +94,14 @@ public class SingleDirectorServlet extends HttpServlet {
         } finally {
             out.close();
         }
+    }
+
+    private static JsonElement posterToJson(Poster poster) {
+        if (poster == null) return JsonNull.INSTANCE;
+        JsonObject posterJson = new JsonObject();
+        posterJson.addProperty("path", poster.getPath());
+        posterJson.addProperty("w342", poster.getW342());
+        posterJson.addProperty("original", poster.getOriginal());
+        return posterJson;
     }
 }

@@ -16,6 +16,7 @@ public class Movie {
     private List<Star> stars = new ArrayList<>();
     private Poster poster;
     private String overview; // TMDB plot synopsis, null when TMDB has none
+    private Photo directorPhoto;
     private String watchStatus; // "watched" | "watching" | "plan_to_watch"; only set on watchlist entries
 
     public Movie() {}
@@ -73,6 +74,9 @@ public class Movie {
 
     public String getOverview() { return overview; }
     public void setOverview(String overview) { this.overview = overview; }
+
+    public Photo getDirectorPhoto() { return directorPhoto; }
+    public void setDirectorPhoto(Photo directorPhoto) { this.directorPhoto = directorPhoto; }
 
     public String getWatchStatus() { return watchStatus; }
     public void setWatchStatus(String watchStatus) { this.watchStatus = watchStatus; }

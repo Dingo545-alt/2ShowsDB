@@ -4,6 +4,7 @@ import DataAccessObject.DaoFactory;
 import DataAccessObject.Interfaces.MovieDao;
 import Model.Genre;
 import Model.Movie;
+import Model.Photo;
 import Model.Poster;
 import Model.Star;
 import com.mongodb.client.MongoClient;
@@ -20,12 +21,14 @@ import java.util.Map;
 public class MongoMovieDao implements MovieDao {
     private final MongoCollection<Document> movieCollection;
     private final MongoCollection<Document> starCollection;
+    private final MongoCollection<Document> directorCollection;
 
     public MongoMovieDao() {
         MongoClient mongoClient = DaoFactory.getMongoClient();
         MongoDatabase database = mongoClient.getDatabase("moviedb");
         this.movieCollection = database.getCollection("movies");
         this.starCollection = database.getCollection("stars");
+        this.directorCollection = database.getCollection("directors");
     }
 
     @Override
@@ -38,6 +41,12 @@ public class MongoMovieDao implements MovieDao {
         movie.setTitle(doc.getString("title"));
         movie.setYear(doc.getInteger("year"));
         applyDirector(doc.get("director"), movie);
+        if (movie.getDirectorId() != null) {
+            Document directorDoc = directorCollection.find(Filters.eq("_id", movie.getDirectorId())).first();
+            if (directorDoc != null) {
+                movie.setDirectorPhoto(parsePhoto(directorDoc.get("photo", Document.class)));
+            }
+        }
         movie.setPrice(doc.getDouble("price"));
 
         Double ratingVal = doc.getDouble("rating");
@@ -60,21 +69,23 @@ public class MongoMovieDao implements MovieDao {
                 starIds.add(starDoc.getString("id"));
             }
 
-            Map<String, Integer> starMovieCounts = new HashMap<>();
+            Map<String, Document> starDetailsById = new HashMap<>();
             for (Document starDoc : starCollection.find(Filters.in("_id", starIds))) {
-                List<?> movieList = starDoc.get("movies", List.class);
-                int count = (movieList != null) ? movieList.size() : 0;
-                starMovieCounts.put(starDoc.getString("_id"), count);
+                starDetailsById.put(starDoc.getString("_id"), starDoc);
             }
 
             for (Document starDoc : rawStars) {
                 String starId = starDoc.getString("id");
                 Star star = new Star();
-                star.setId(starDoc.getString("id"));
+                star.setId(starId);
                 star.setName(starDoc.getString("name"));
 
-                int totalCareerMovies = starMovieCounts.getOrDefault(starId, 0);
-                star.setMovieCount(totalCareerMovies);
+                Document starDetail = starDetailsById.get(starId);
+                if (starDetail != null) {
+                    List<?> movieList = starDetail.get("movies", List.class);
+                    star.setMovieCount(movieList != null ? movieList.size() : 0);
+                    star.setPhoto(parsePhoto(starDetail.get("photo", Document.class)));
+                }
 
                 movie.getStars().add(star);
             }
@@ -95,6 +106,18 @@ public class MongoMovieDao implements MovieDao {
         movie.setOverview(doc.getString("overview"));
 
         return movie;
+    }
+
+    private Photo parsePhoto(Document photoDoc) {
+        if (photoDoc == null) return null;
+        Photo photo = new Photo();
+        photo.setPath(photoDoc.getString("path"));
+        Document sizes = photoDoc.get("sizes", Document.class);
+        if (sizes != null) {
+            photo.setW185(sizes.getString("w185"));
+            photo.setOriginal(sizes.getString("original"));
+        }
+        return photo;
     }
 
     /**
