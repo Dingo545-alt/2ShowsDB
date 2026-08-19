@@ -57,6 +57,7 @@ class SingleDirectorServletTest {
         Director director = new Director("nm0000399", "Frank Darabont");
         director.setDob("1959-01-28");
         director.setPhoto(new Photo("/photo.jpg", "https://img/w185/photo.jpg", "https://img/original/photo.jpg"));
+        director.setBiography("Frank Darabont is a French-American film director.");
         Movie movie = new Movie("tt0111161", "The Shawshank Redemption");
         movie.setYear(1994);
         director.setMovies(List.of(movie));
@@ -72,6 +73,7 @@ class SingleDirectorServletTest {
         assertEquals("/photo.jpg", json.getAsJsonObject("photo").get("path").getAsString());
         assertEquals("https://img/w185/photo.jpg",
                 json.getAsJsonObject("photo").getAsJsonObject("sizes").get("w185").getAsString());
+        assertEquals("Frank Darabont is a French-American film director.", json.get("biography").getAsString());
         assertEquals(1, json.getAsJsonArray("movies").size());
         JsonObject movieJson = json.getAsJsonArray("movies").get(0).getAsJsonObject();
         assertEquals("tt0111161", movieJson.get("id").getAsString());
@@ -89,6 +91,7 @@ class SingleDirectorServletTest {
         JsonObject json = JsonParser.parseString(responseBody.toString()).getAsJsonObject();
         assertEquals("N/A", json.get("dob").getAsString());
         assertTrue(json.get("photo").isJsonNull());
+        assertTrue(json.get("biography").isJsonNull());
     }
 
     @Test

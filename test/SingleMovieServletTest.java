@@ -60,6 +60,7 @@ class SingleMovieServletTest {
         movie.setDirectorId("nm0000399");
         movie.setRating(9.3f);
         movie.setPoster(new Poster("/poster.jpg", "https://img/w342/poster.jpg", "https://img/original/poster.jpg"));
+        movie.setOverview("Two imprisoned men bond over a number of years.");
         movie.setGenres(List.of(new Genre(1, "Drama")));
 
         Star star = new Star("nm0000209", "Tim Robbins");
@@ -80,6 +81,7 @@ class SingleMovieServletTest {
         assertEquals("nm0000399", json.get("directorId").getAsString());
         assertEquals(9.3f, json.get("rating").getAsFloat());
         assertEquals("/poster.jpg", json.getAsJsonObject("poster").get("path").getAsString());
+        assertEquals("Two imprisoned men bond over a number of years.", json.get("overview").getAsString());
         assertEquals(1, json.getAsJsonArray("genres").size());
         assertEquals("Drama", json.getAsJsonArray("genres").get(0).getAsJsonObject().get("name").getAsString());
         assertEquals(1, json.getAsJsonArray("stars").size());
@@ -104,6 +106,7 @@ class SingleMovieServletTest {
         JsonObject json = JsonParser.parseString(responseBody.toString()).getAsJsonObject();
         assertTrue(json.get("rating").isJsonNull());
         assertTrue(json.get("poster").isJsonNull());
+        assertTrue(json.get("overview").isJsonNull());
     }
 
     @Test
