@@ -25,6 +25,9 @@ function handleSingleMovieResults(resultData) {
         jQuery("#movie_poster_placeholder").prop("hidden", false);
     }
 
+    // Overview
+    jQuery("#movie_overview").text(resultData.overview || "No synopsis available.");
+
     // Genres (displaying as tags)
     let genresHTML = resultData.genres.map(g =>
         `<a href="movie-list.html?genre=${encodeURIComponent(g.name)}" class="genres-tag">${g.name}</a>`
