@@ -5,6 +5,9 @@ function handleSingleDirectorResult(resultData) {
     //Set dob
     jQuery("#director_dob").text(resultData.dob);
 
+    // Biography
+    jQuery("#director_biography").text(resultData.biography || "No biography available.");
+
     // Photo
     const photoUrl = resultData.photo ? resultData.photo.sizes.original : null;
     if (photoUrl) {
