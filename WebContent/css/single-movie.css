@@ -1,10 +1,19 @@
+/* ---- Page theme: matches main.html / movie-list.html's dark / olive-green look ---- */
+
+body {
+    margin: 0;
+    background-color: #121212;
+    color: #f2f2f2;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
 .movie-container {
     max-width: 75%;
     margin: 20px auto;
     padding: 20px;
-    border: 1px solid #ddd;
+    border: 1px solid #2a2a2a;
     border-radius: 8px;
-    background-color: #f9f9f9;
+    background-color: #1a1a1a;
 }
 
 .movie-layout {
@@ -22,7 +31,7 @@
     width: 100%;
     height: auto;
     border-radius: 6px;
-    border: 1px solid #ddd;
+    border: 1px solid #2a2a2a;
 }
 
 .movie-poster .poster-placeholder[hidden] {
@@ -35,10 +44,10 @@
     justify-content: center;
     width: 100%;
     height: 320px;
-    border: 1px solid #ddd;
+    border: 1px solid #2a2a2a;
     border-radius: 6px;
-    background-color: #eee;
-    color: #999;
+    background-color: #1c1c1c;
+    color: #888;
     font-size: 0.9em;
     text-align: center;
 }
@@ -50,6 +59,7 @@
 
 .rating-badge {
     background-color: #f3ce13; /* Gold */
+    color: #1a1a05;
     padding: 4px 8px;
     border-radius: 4px;
     font-weight: bold;
@@ -57,11 +67,19 @@
 
 .genres-tag {
     display: inline-block;
-    background: #e0e0e0;
-    padding: 2px 10px;
     margin: 5px 5px 0 0;
-    border-radius: 20px;
+    padding: 2px 12px;
+    border: 1px solid #7a8f3c;
+    border-radius: 999px;
+    color: #7a8f3c;
+    text-decoration: none;
     font-size: 0.9em;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.genres-tag:hover {
+    background-color: #7a8f3c;
+    color: #0a0a0a;
 }
 
 .director-line {
@@ -70,12 +88,22 @@
     gap: 8px;
 }
 
+.director-line a {
+    color: #7a8f3c;
+    text-decoration: none;
+}
+
+.director-line a:hover {
+    color: #97ac57;
+    text-decoration: underline;
+}
+
 .director-photo-thumb {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid #ddd;
+    border: 1px solid #2a2a2a;
     vertical-align: middle;
 }
 
@@ -83,16 +111,17 @@
     display: inline-block;
     margin-bottom: 16px;
     padding: 6px 12px;
-    background-color: #fff;
-    border: 1px solid #aaa;
+    background-color: transparent;
+    border: 1px solid #444;
     border-radius: 4px;
-    color: #1a3a6e;
+    color: #f2f2f2;
     text-decoration: none;
     font-size: 0.9em;
 }
 
 .back-button:hover {
-    background-color: #f0f0f0;
+    border-color: #7a8f3c;
+    color: #7a8f3c;
 }
 
 .overview-line {
@@ -102,7 +131,7 @@
 .overview-line p {
     margin: 4px 0 0;
     line-height: 1.6;
-    color: #333;
+    color: #ccc;
 }
 
 .movie-cast {
@@ -110,7 +139,8 @@
 }
 
 .movie-cast h2 {
-    border-bottom: 2px solid #333;
+    color: #7a8f3c;
+    border-bottom: 2px solid #2a2a2a;
     padding-bottom: 10px;
 }
 
@@ -125,10 +155,11 @@
     width: 100px;
     text-align: center;
     text-decoration: none;
-    color: inherit;
+    color: #f2f2f2;
 }
 
 .cast-card:hover .cast-name {
+    color: #97ac57;
     text-decoration: underline;
 }
 
@@ -139,7 +170,7 @@
     height: 90px;
     margin: 0 auto 6px;
     border-radius: 50%;
-    border: 1px solid #ddd;
+    border: 1px solid #2a2a2a;
 }
 
 .cast-photo {
@@ -150,8 +181,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #eee;
-    color: #999;
+    background-color: #1c1c1c;
+    color: #888;
     font-size: 0.75em;
     text-align: center;
 }
