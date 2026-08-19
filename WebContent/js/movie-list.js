@@ -90,9 +90,10 @@ function writeStateToUrl(state) {
 }
 
 /**
- * Updates the ▲ / ▼ icon next to whichever sortable column header is active.
- * ▲ = ascending
- * ▼ = descending
+ * Updates the icon next to each sortable column header.
+ * ⇅ = sortable but not the active column (a hint that it's clickable)
+ * ▲ = active, ascending
+ * ▼ = active, descending
  */
 function updateHeaderSortIndicatorIcons(sortState) {
     jQuery(".sortable-header").each(function () {
@@ -101,11 +102,12 @@ function updateHeaderSortIndicatorIcons(sortState) {
         const directionElement = headerElement.find(".sort-direction-icon");
 
         headerElement.removeClass("is-active-sort-column");
-        directionElement.text("");
 
         if (headerSortField === sortState.primaryField) {
             directionElement.text(sortState.primaryDirection === "asc" ? "▲" : "▼");
             headerElement.addClass("is-active-sort-column");
+        } else {
+            directionElement.text("⇅");
         }
     });
 }

@@ -88,6 +88,14 @@ body {
     margin-left: 4px;
     text-align: center;
     font-size: 0.9em;
+    color: #777;
+}
+
+.sortable-header:hover .sort-direction-icon {
+    color: #97ac57;
+}
+
+.is-active-sort-column .sort-direction-icon {
     color: #7a8f3c;
     font-weight: bold;
 }
