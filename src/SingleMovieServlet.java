@@ -2,9 +2,11 @@ import DataAccessObject.DaoFactory;
 import DataAccessObject.Interfaces.MovieDao;
 import Model.Genre;
 import Model.Movie;
+import Model.Photo;
 import Model.Poster;
 import Model.Star;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
@@ -61,6 +63,7 @@ public class SingleMovieServlet extends HttpServlet{
             }
 
             responseJson.addProperty("overview", movie.getOverview());
+            responseJson.add("directorPhoto", photoToJson(movie.getDirectorPhoto()));
 
             JsonArray genresArray = new JsonArray();
             for (Genre genre : movie.getGenres()) {
@@ -76,6 +79,7 @@ public class SingleMovieServlet extends HttpServlet{
                 starJson.addProperty("id", star.getId());
                 starJson.addProperty("name", star.getName());
                 starJson.addProperty("movie_count", star.getMovieCount());
+                starJson.add("photo", photoToJson(star.getPhoto()));
                 starsArray.add(starJson);
             }
             responseJson.add("stars", starsArray);
@@ -92,5 +96,14 @@ public class SingleMovieServlet extends HttpServlet{
             out.close();
         }
 
+    }
+
+    private static JsonElement photoToJson(Photo photo) {
+        if (photo == null) return JsonNull.INSTANCE;
+        JsonObject photoJson = new JsonObject();
+        photoJson.addProperty("path", photo.getPath());
+        photoJson.addProperty("w185", photo.getW185());
+        photoJson.addProperty("original", photo.getOriginal());
+        return photoJson;
     }
 }

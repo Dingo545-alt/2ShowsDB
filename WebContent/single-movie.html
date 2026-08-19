@@ -54,21 +54,27 @@
                 </div>
             </header>
             <section class="movie-info">
-                <p><strong>Director:</strong> <span id="movie_director"></span></p>
+                <p class="director-line">
+                    <strong>Director:</strong>
+                    <span id="movie_director_photo_wrap" class="director-photo-wrap" hidden>
+                        <img id="movie_director_photo" class="director-photo-thumb" alt="">
+                    </span>
+                    <span id="movie_director"></span>
+                </p>
                 <div class="genre-list">
                     <strong>Genres:</strong>
                     <div id="movie_genres"></div>
                 </div>
-                <div class="star-list">
-                    <strong>Stars:</strong>
-                    <ul id="movie_stars"></ul>
+                <div class="overview-line">
+                    <strong>Overview:</strong>
+                    <p id="movie_overview"></p>
                 </div>
             </section>
         </div>
     </div>
-    <section class="movie-overview">
-        <h2>Overview</h2>
-        <p id="movie_overview"></p>
+    <section class="movie-cast">
+        <h2>Cast</h2>
+        <div id="movie_stars" class="cast-grid"></div>
     </section>
 </main>
 

@@ -2,6 +2,7 @@ import DataAccessObject.DaoFactory;
 import DataAccessObject.Interfaces.MovieDao;
 import Model.Genre;
 import Model.Movie;
+import Model.Photo;
 import Model.Poster;
 import Model.Star;
 import com.google.gson.JsonObject;
@@ -61,10 +62,12 @@ class SingleMovieServletTest {
         movie.setRating(9.3f);
         movie.setPoster(new Poster("/poster.jpg", "https://img/w342/poster.jpg", "https://img/original/poster.jpg"));
         movie.setOverview("Two imprisoned men bond over a number of years.");
+        movie.setDirectorPhoto(new Photo("/director.jpg", "https://img/w185/director.jpg", "https://img/original/director.jpg"));
         movie.setGenres(List.of(new Genre(1, "Drama")));
 
         Star star = new Star("nm0000209", "Tim Robbins");
         star.setMovieCount(42);
+        star.setPhoto(new Photo("/star.jpg", "https://img/w185/star.jpg", "https://img/original/star.jpg"));
         movie.setStars(List.of(star));
 
         when(movieDao.getMovieById("tt0111161")).thenReturn(movie);
@@ -82,6 +85,7 @@ class SingleMovieServletTest {
         assertEquals(9.3f, json.get("rating").getAsFloat());
         assertEquals("/poster.jpg", json.getAsJsonObject("poster").get("path").getAsString());
         assertEquals("Two imprisoned men bond over a number of years.", json.get("overview").getAsString());
+        assertEquals("/director.jpg", json.getAsJsonObject("directorPhoto").get("path").getAsString());
         assertEquals(1, json.getAsJsonArray("genres").size());
         assertEquals("Drama", json.getAsJsonArray("genres").get(0).getAsJsonObject().get("name").getAsString());
         assertEquals(1, json.getAsJsonArray("stars").size());
@@ -89,6 +93,7 @@ class SingleMovieServletTest {
         assertEquals("nm0000209", starJson.get("id").getAsString());
         assertEquals("Tim Robbins", starJson.get("name").getAsString());
         assertEquals(42, starJson.get("movie_count").getAsInt());
+        assertEquals("/star.jpg", starJson.getAsJsonObject("photo").get("path").getAsString());
     }
 
     @Test
@@ -107,6 +112,7 @@ class SingleMovieServletTest {
         assertTrue(json.get("rating").isJsonNull());
         assertTrue(json.get("poster").isJsonNull());
         assertTrue(json.get("overview").isJsonNull());
+        assertTrue(json.get("directorPhoto").isJsonNull());
     }
 
     @Test

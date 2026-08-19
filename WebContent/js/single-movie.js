@@ -15,6 +15,15 @@ function handleSingleMovieResults(resultData) {
         jQuery("#movie_director").text(resultData.director);
     }
 
+    // Director photo
+    const directorPhotoUrl = resultData.directorPhoto ? resultData.directorPhoto.w185 : null;
+    if (directorPhotoUrl) {
+        jQuery("#movie_director_photo").attr("src", directorPhotoUrl).attr("alt", resultData.director + " photo");
+        jQuery("#movie_director_photo_wrap").prop("hidden", false);
+    } else {
+        jQuery("#movie_director_photo_wrap").prop("hidden", true);
+    }
+
     // Poster
     const posterUrl = resultData.poster ? resultData.poster.original : null;
     if (posterUrl) {
@@ -34,12 +43,15 @@ function handleSingleMovieResults(resultData) {
     );
     jQuery("#movie_genres").html(genresHTML);
 
-    // Stars (displaying as list of links)
-    let starsHTML = "";
+    // Cast (photo + name, linking to each star's page)
+    let castHTML = "";
     resultData.stars.forEach(star => {
-        starsHTML += `<li><a href="single-star.html?id=${star.id}">${star.name}</a> (${star.movie_count} movies)</li>`;
+        const photoHTML = star.photo
+            ? `<img src="${star.photo.w185}" alt="${star.name}" class="cast-photo">`
+            : `<span class="cast-photo-placeholder">No Photo</span>`;
+        castHTML += `<a href="single-star.html?id=${star.id}" class="cast-card">${photoHTML}<span class="cast-name">${star.name}</span></a>`;
     });
-    jQuery("#movie_stars").html(starsHTML);
+    jQuery("#movie_stars").html(castHTML);
 }
 
 function markFavoriteButtonAsFavorited() {
