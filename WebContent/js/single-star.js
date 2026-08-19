@@ -5,6 +5,9 @@ function handleSingleStarResult(resultData) {
     //Set dob
     jQuery("#star_dob").text(resultData.dob);
 
+    // Biography
+    jQuery("#star_biography").text(resultData.biography || "No biography available.");
+
     // Photo
     const photoUrl = resultData.photo ? resultData.photo.sizes.original : null;
     if (photoUrl) {
